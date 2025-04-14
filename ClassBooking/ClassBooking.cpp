@@ -5,14 +5,12 @@
 
 
 // 기본 입출력, 파일입출력, 문자열처리, 벡터 라이브러리 가져옴
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <map>
-#include <iomanip>
-#include <algorithm>
+#include <iostream>// 입출력 기능 사용
+#include <fstream>// 파일 입출력 사용
+#include <sstream> // 문자열 스트림 처리용
+#include <string>  // 문자열 타입 사용
+#include <vector> // 동적 배열 벡터 사용
+#include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
 using namespace std;
 
 // 사용자 구조체
