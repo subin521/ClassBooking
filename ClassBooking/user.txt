@@ -1,2 +1,2 @@
-user123	Pass123!	0
+user1	Pass1!	0
 admin01	Admin@123	1
