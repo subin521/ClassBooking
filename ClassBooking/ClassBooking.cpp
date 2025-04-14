@@ -1,4 +1,10 @@
-// classbooking.cpp
+/*
+* 2025 04 14
+* 일반 사용자 예약 구현용 버전
+*/
+
+
+// 기본 입출력, 파일입출력, 문자열처리, 벡터 라이브러리 가져옴
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -9,12 +15,14 @@
 #include <algorithm>
 using namespace std;
 
+// 사용자 구조체
 struct User {
     string id;
     string password;
     bool is_admin;
 };
 
+// 예약 구조체
 struct Reservation {
     string user_id;
     string room;
@@ -23,6 +31,7 @@ struct Reservation {
     string end_time;
 };
 
+// 강의실 구조체
 struct Classroom {
     string room;
     bool is_available;
@@ -30,30 +39,37 @@ struct Classroom {
     string available_end;
 };
 
+// 벡터로 유저, 예약, 강의실 저장함, 이게 제일 간단함
 vector<User> users;
 vector<Reservation> reservations;
 vector<Classroom> classrooms;
 
+// 요일 리스트
 vector<string> weekdays = { "Mon", "Tue", "Wed", "Thu", "Fri" };
+// 시간대 리스트임, 1시간 단위
 vector<string> times = {
     "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 };
 
+// 시간 겹치는지 확인하는 함수
 bool isTimeOverlap(const string& s1, const string& e1, const string& s2, const string& e2) {
     return !(e1 <= s2 || s1 >= e2);
 }
 
+// 강의실 불러오는 함수
 bool loadClassrooms() {
     ifstream fin("classroom.txt");
     if (!fin) return false;
     string room, start, end;
     int avail;
     while (fin >> room >> avail >> start >> end) {
-        bool available_flag = (avail != 0);  
+        bool available_flag = (avail != 0);  // int을 bool로 바꿈
         classrooms.push_back({ room, available_flag, start, end });
     }
     return true;
 }
+
+// 유저 불러오는 함수
 bool loadUsers() {
     ifstream fin("user.txt");
     if (!fin) return false;
@@ -66,7 +82,7 @@ bool loadUsers() {
     return true;
 }
 
-
+// 예약 불러오는 함수
 bool loadReservations() {
     ifstream fin("reservation.txt");
     if (!fin) return false;
@@ -77,8 +93,7 @@ bool loadReservations() {
     return true;
 }
 
-
-
+// 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
     cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
     cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
@@ -86,6 +101,7 @@ void printClassroomList() {
     cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room << ", "; cout << endl;
 }
 
+// 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
 void printTimeTable(const string& room) {
     cout << "      ";
     for (auto& day : weekdays) cout << setw(6) << day;
@@ -107,9 +123,10 @@ void printTimeTable(const string& room) {
         cout << endl;
     }
     cout << "press any key to continue ...";
-    cin.ignore(); cin.get();
+    cin.ignore(); cin.get();  // 아무 키 대기
 }
 
+// 로그인 기능, 테스트 용으로 구현한거라 보완 필요
 User* login() {
     string id, pw;
     cout << "ID: "; cin >> id;
@@ -117,10 +134,11 @@ User* login() {
     for (auto& u : users) {
         if (u.id == id && u.password == pw) return &u;
     }
-    cout << ".!! ID or PW is incorrect.\n";
+    cout << ".!! ID or PW is incorrect\n";
     return nullptr;
 }
 
+// 강의실 예약하는 함수
 void reserveClassroom(const string& user_id) {
     string room, day, start, end;
     cout << "classroom number: "; cin >> room;
@@ -128,25 +146,28 @@ void reserveClassroom(const string& user_id) {
     cout << "start time(HH:MM): "; cin >> start;
     cout << "end time(HH:MM): "; cin >> end;
 
+    // 겹치는 시간 예약했는지 체크
     for (const auto& r : reservations) {
         if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
-            cout << ".!! Already reserved time.\n";
+            cout << ".!! Already reserved time\n";
             return;
         }
     }
 
+    // 강의실 예약 가능시간 안에 있는지 확인
     for (const auto& c : classrooms) {
         if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
             reservations.push_back({ user_id, room, day, start, end });
             ofstream fout("reservation.txt", ios::app);
             fout << user_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
-            cout << "Reservation completed.\n";
+            cout << "Reservation completed\n";
             return;
         }
     }
-    cout << ".!! This is not a time available for reservation.\n";
+    cout << ".!! This is not a time available for reservation\n";
 }
 
+// 예약 취소 기능
 void cancelReservation(const string& user_id) {
     vector<int> indices;
     for (int i = 0; i < reservations.size(); ++i) {
@@ -156,13 +177,13 @@ void cancelReservation(const string& user_id) {
         }
     }
     if (indices.empty()) {
-        cout << "No reservations to cancel.\n";
+        cout << "No reservations to cancel\n";
         return;
     }
     cout << "Enter the number you want to cancel: ";
     int choice; cin >> choice;
     if (choice < 1 || choice > indices.size()) {
-        cout << ".!! Invalid input.\n";
+        cout << ".!! Invalid input\n";
         return;
     }
     reservations.erase(reservations.begin() + indices[choice - 1]);
@@ -170,10 +191,12 @@ void cancelReservation(const string& user_id) {
     for (auto& r : reservations) {
         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
     }
-    cout << "Reservation canceled.\n";
+    cout << "Reservation canceled\n";
 }
 
+// 프로그램 시작
 int main() {
+    // 파일 로딩 안되면 종료함, 데이터 무결성 파트에서 추가할 예정
     if (!loadUsers() || !loadClassrooms() || !loadReservations()) {
         return 1;
     }
@@ -187,7 +210,7 @@ int main() {
             while (!user) user = login();
             if (user->is_admin) {
                 cout << "-- Main for manager --\n";
-                // 관리자 기능 연결 예정
+                // 관리자 기능은 아직 구현 안됨
             }
             else {
                 cout << "-- Main --\n";
@@ -207,15 +230,17 @@ int main() {
             }
         }
         else if (sel == 2) {
+            // 회원가입
             string id, pw;
             cout << "ID: "; cin >> id;
             cout << "PW: "; cin >> pw;
             users.push_back({ id, pw, false });
             ofstream fout("user.txt", ios::app);
             fout << id << "\t" << pw << "\t0\n";
-            cout << "Registration complete.\n";
+            cout << "Registration complete\n";
         }
         else if (sel == 3) {
+            // 종료 확인
             string confirm;
             cout << "If you want to quit this program, enter 'quit': ";
             cin >> confirm;
