@@ -164,6 +164,82 @@ void reserveClassroom(const string& user_id) {
     }
     cout << ".!! This is not a time available for reservation\n";
 }
+//강의실 상태 출력 및 수정 함수- 조수빈
+void showAndEditClassroom() {
+    while (true) {
+        cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
+        int input; cin >> input;
+
+        if (input == 1) { // 6.3.2.1 check reservation
+            printClassroomList();
+            cout << "classroom number: ";
+            string room; cin >> room;
+            printTimeTable(room);
+        }
+        else if (input == 2) { // 6.3.2.2 accept reservation
+            cout << "classroom number: ";
+            string room; cin >> room;
+            bool roomFound = false;
+            for (auto& c : classrooms) {
+                if (c.room == room) {
+                    roomFound = true;
+                    cout << "enter a number corresponding to the day of the week\n"
+                         << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+                    int day; cin >> day;
+                    if (day < 1 || day > 5) {
+                        cout << ".!! Invalid weekday input\n";
+                        break;
+                    }
+                    string start, end;
+                    cout << "start accept time: "; cin >> start;
+                    cout << "end accept time: "; cin >> end;
+                    // 시간 포맷 검사는 생략했지만, 필요시 추가 가능
+                    c.is_available = true;
+                    c.available_start = start;
+                    c.available_end = end;
+                    cout << "Accept completed.\n";
+                    break;
+                }
+            }
+            if (!roomFound) cout << ".!! Room not found\n";
+        }
+        else if (input == 3) { // 6.3.2.3 ban reservation
+            cout << "classroom number: ";
+            string room; cin >> room;
+            bool roomFound = false;
+            for (auto& c : classrooms) {
+                if (c.room == room) {
+                    roomFound = true;
+                    cout << "enter a number corresponding to the day of the week\n"
+                         << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+                    int day; cin >> day;
+                    if (day < 1 || day > 5) {
+                        cout << ".!! Invalid weekday input\n";
+                        break;
+                    }
+                    string start, end;
+                    cout << "start ban time: "; cin >> start;
+                    cout << "end ban time: "; cin >> end;
+                    // 실제로 요일별로 저장하는 구조는 없지만, 전체 시간으로 막는 방식으로 대체
+                    c.is_available = false;
+                    c.available_start = start;
+                    c.available_end = end;
+                    cout << "Ban completed.\n";
+                    break;
+                }
+            }
+            if (!roomFound) cout << ".!! Room not found\n";
+        }
+        else {
+            cout << ".!! Enter the index number in the menu.\n";
+        }
+
+        // 관리자 메뉴로 복귀
+        break;
+    }
+}
+
+
 
 // 예약 취소 기능
 void cancelReservation(const string& user_id) {
@@ -208,7 +284,25 @@ int main() {
             while (!user) user = login();
             if (user->is_admin) {
                 cout << "-- Main for manager --\n";
-                // 관리자 기능은 아직 구현 안됨
+                // 관리자 기능 - 조수빈
+                while (true){
+                    cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
+                    int choice; cin >> choice;
+                    if(choice == 1){
+                        //예약 목록 출력 및 수정 함수
+                    }
+                    else if (choice == 2){
+                        //강의실 상태 출력 및 수정 함수 호출
+                        showAndEditClassroom();
+                    }
+                    else if (choice == 3){
+                        break;
+                    }
+                    else{
+                        cout << ".!! Enter the index number in the mune.";
+
+                    }
+                }
             }
             else {
                 cout << "-- Main --\n";
