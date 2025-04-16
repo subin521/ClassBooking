@@ -136,7 +136,7 @@ User* login() {
     return nullptr;
 }
 
-// 강의실 예약하는 함수
+// 강의실 예약하는 함수 ----------++ 관리자가 금지 예약 한 시간이랑 안겹치는지 확인 하는 내용 추가 필요.
 void reserveClassroom(const string& user_id) {
     string room, day, start, end;
     cout << "classroom number: "; cin >> room;
@@ -164,11 +164,41 @@ void reserveClassroom(const string& user_id) {
     }
     cout << ".!! This is not a time available for reservation\n";
 }
+
+//예약 목록 출력 및 수정 함수 호출
+void showListAndEditReservation() {
+    while (true) {
+        cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
+        int input; cin >> input;
+
+        if(input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
+        
+        }
+        else if(input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
+            
+        }
+        else if(input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
+        
+        }
+        else{
+            cout << ".!! Enter the index number in the menu.\n";
+        }
+    }
+}
+
+
 //강의실 상태 출력 및 수정 함수- 조수빈
-void showAndEditClassroom() {
+void showAndEditClassroom(const string& admin_id) {
     while (true) {
         cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
         int input; cin >> input;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << ".!! Enter the index number in the menu.\n";
+            continue;
+        }
 
         if (input == 1) { // 6.3.2.1 check reservation
             printClassroomList();
@@ -176,7 +206,7 @@ void showAndEditClassroom() {
             string room; cin >> room;
             printTimeTable(room);
         }
-        else if (input == 2) { // 6.3.2.2 accept reservation
+        else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
             cout << "classroom number: ";
             string room; cin >> room;
             bool roomFound = false;
@@ -193,17 +223,53 @@ void showAndEditClassroom() {
                     string start, end;
                     cout << "start accept time: "; cin >> start;
                     cout << "end accept time: "; cin >> end;
-                    // 시간 포맷 검사는 생략했지만, 필요시 추가 가능
-                    c.is_available = true;
-                    c.available_start = start;
-                    c.available_end = end;
+
+                    vector<Reservation> new_reservations;
+
+                    // 시간 확인 검사 추가해야함.
+                    // 기존 예약 리스트 순회하면서 금지(관리자) 예약 중 허용시간대와 겹치는 부분 수정
+                    for (auto it = reservations.begin(); it != reservations.end(); ) {
+                        if (it->user_id == admin_id &&
+                            it->room == room &&
+                            it->day == to_string(day) &&
+                            isTimeOverlap(it->start_time, it->end_time, start, end)) {
+        
+                            // 분할된 금지 시간으로 재생성
+                            if (it->start_time < start) {
+                                new_reservations.push_back({ admin_id, room, to_string(day), it->start_time, start });
+                            }
+                            if (it->end_time > end) {
+                                new_reservations.push_back({ admin_id, room, to_string(day), end, it->end_time });
+                            }
+        
+                            // 기존 금지 예약 삭제
+                            it = reservations.erase(it);
+                        }
+                        else {
+                            ++it;
+                        }
+                    }
+        
+                    // 새로운 금지 예약 추가
+                    for (const auto& r : new_reservations) {
+                        reservations.push_back(r);
+                    }
+        
+                    // 파일 전체 갱신
+                    ofstream fout("reservation.txt");
+                    for (const auto& r : reservations) {
+                        fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
+                             << r.end_time << "\t" << r.day << endl;
+                    }
+        
                     cout << "Accept completed.\n";
                     break;
                 }
             }
+                
             if (!roomFound) cout << ".!! Room not found\n";
         }
-        else if (input == 3) { // 6.3.2.3 ban reservation
+        else if (input == 3) { // 6.3.2.3 ban reservation 예약 금지
             cout << "classroom number: ";
             string room; cin >> room;
             bool roomFound = false;
@@ -221,9 +287,9 @@ void showAndEditClassroom() {
                     cout << "start ban time: "; cin >> start;
                     cout << "end ban time: "; cin >> end;
                     // 실제로 요일별로 저장하는 구조는 없지만, 전체 시간으로 막는 방식으로 대체
-                    c.is_available = false;
-                    c.available_start = start;
-                    c.available_end = end;
+                    reservations.push_back({admin_id, room, to_string(day), start, end});
+                    ofstream fout("reservation.txt", ios::app);
+                    fout << admin_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
                     cout << "Ban completed.\n";
                     break;
                 }
@@ -233,8 +299,6 @@ void showAndEditClassroom() {
         else {
             cout << ".!! Enter the index number in the menu.\n";
         }
-
-        // 관리자 메뉴로 복귀
         break;
     }
 }
@@ -289,17 +353,18 @@ int main() {
                     cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
                     int choice; cin >> choice;
                     if(choice == 1){
-                        //예약 목록 출력 및 수정 함수
+                        //예약 목록 출력 및 수정 함수 호출
+                        
                     }
                     else if (choice == 2){
                         //강의실 상태 출력 및 수정 함수 호출
-                        showAndEditClassroom();
+                        showAndEditClassroom(user -> id);
                     }
                     else if (choice == 3){
                         break;
                     }
                     else{
-                        cout << ".!! Enter the index number in the mune.";
+                        cout << ".!! Enter the index number in the mune.\n";
 
                     }
                 }
