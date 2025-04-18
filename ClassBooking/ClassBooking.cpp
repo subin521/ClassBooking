@@ -1,26 +1,28 @@
 /*
 * 2025 04 14
-* ÀÏ¹İ »ç¿ëÀÚ ¿¹¾à ±¸Çö¿ë ¹öÀü
+* ï¿½Ï¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 */
 
 
-// ±âº» ÀÔÃâ·Â, ÆÄÀÏÀÔÃâ·Â, ¹®ÀÚ¿­Ã³¸®, º¤ÅÍ ¶óÀÌºê·¯¸® °¡Á®¿È
-#include <iostream>// ÀÔÃâ·Â ±â´É »ç¿ë
-#include <fstream>// ÆÄÀÏ ÀÔÃâ·Â »ç¿ë
-#include <sstream> // ¹®ÀÚ¿­ ½ºÆ®¸² Ã³¸®¿ë
-#include <string>  // ¹®ÀÚ¿­ Å¸ÀÔ »ç¿ë
-#include <vector> // µ¿Àû ¹è¿­ º¤ÅÍ »ç¿ë
-#include <iomanip>// Ãâ·Â Á¤·Ä¿ë (setw ¾µ ¶§ ÇÊ¿ä)
+// ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ú¿ï¿½Ã³ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºê·¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#include <iostream>// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+#include <fstream>// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+#include <sstream> // ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½
+#include <string>  // ï¿½ï¿½ï¿½Ú¿ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½
+#include <vector> // ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+#include <iomanip>// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ä¿ï¿½ (setw ï¿½ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½)
+#include <map>
+
 using namespace std;
 
-// »ç¿ëÀÚ ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct User {
     string id;
     string password;
     bool is_admin;
 };
 
-// ¿¹¾à ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct Reservation {
     string user_id;
     string room;
@@ -29,7 +31,7 @@ struct Reservation {
     string end_time;
 };
 
-// °­ÀÇ½Ç ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct Classroom {
     string room;
     bool is_available;
@@ -37,37 +39,37 @@ struct Classroom {
     string available_end;
 };
 
-// º¤ÅÍ·Î À¯Àú, ¿¹¾à, °­ÀÇ½Ç ÀúÀåÇÔ, ÀÌ°Ô Á¦ÀÏ °£´ÜÇÔ
+// ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 vector<User> users;
 vector<Reservation> reservations;
 vector<Classroom> classrooms;
 
-// ¿äÀÏ ¸®½ºÆ®
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
 vector<string> weekdays = { "Mon", "Tue", "Wed", "Thu", "Fri" };
-// ½Ã°£´ë ¸®½ºÆ®ÀÓ, 1½Ã°£ ´ÜÀ§
+// ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½, 1ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
 vector<string> times = {
     "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 };
 
-// ½Ã°£ °ãÄ¡´ÂÁö È®ÀÎÇÏ´Â ÇÔ¼ö
+// ï¿½Ã°ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 bool isTimeOverlap(const string& s1, const string& e1, const string& s2, const string& e2) {
     return !(e1 <= s2 || s1 >= e2);
 }
 
-// °­ÀÇ½Ç ºÒ·¯¿À´Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 bool loadClassrooms() {
     ifstream fin("classroom.txt");
     if (!fin) return false;
     string room, start, end;
     int avail;
     while (fin >> room >> avail >> start >> end) {
-        bool available_flag = (avail != 0);  // intÀ» bool·Î ¹Ù²Ş
+        bool available_flag = (avail != 0);  // intï¿½ï¿½ boolï¿½ï¿½ ï¿½Ù²ï¿½
         classrooms.push_back({ room, available_flag, start, end });
     }
     return true;
 }
 
-// À¯Àú ºÒ·¯¿À´Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 bool loadUsers() {
     ifstream fin("user.txt");
     if (!fin) return false;
@@ -80,7 +82,7 @@ bool loadUsers() {
     return true;
 }
 
-// ¿¹¾à ºÒ·¯¿À´Â ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 bool loadReservations() {
     ifstream fin("reservation.txt");
     if (!fin) return false;
@@ -91,7 +93,7 @@ bool loadReservations() {
     return true;
 }
 
-// °­ÀÇ½Ç Ãşº°·Î Ãâ·ÂÇØÁÜ, ±×´ë·Î ½áµµ µÉµí
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½×´ï¿½ï¿½ ï¿½áµµ ï¿½Éµï¿½
 void printClassroomList() {
     cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
     cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
@@ -99,7 +101,7 @@ void printClassroomList() {
     cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room << ", "; cout << endl;
 }
 
-// °­ÀÇ½Ç ½Ã°£Ç¥ Ãâ·ÂÇÔ, Å×½ºÆ® ¿ëÀ¸·Î ±¸ÇöÇÑ°Å¶ó º¸¿Ï ÇÊ¿ä
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½Ã°ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ°Å¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
 void printTimeTable(const string& room) {
     cout << "      ";
     for (auto& day : weekdays) cout << setw(6) << day;
@@ -121,10 +123,10 @@ void printTimeTable(const string& room) {
         cout << endl;
     }
     cout << "press any key to continue ...";
-    cin.ignore(); cin.get();  // ¾Æ¹« Å° ´ë±â
+    cin.ignore(); cin.get();  // ï¿½Æ¹ï¿½ Å° ï¿½ï¿½ï¿½
 }
 
-// ·Î±×ÀÎ ±â´É, Å×½ºÆ® ¿ëÀ¸·Î ±¸ÇöÇÑ°Å¶ó º¸¿Ï ÇÊ¿ä
+// ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ°Å¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
 User* login() {
     string id, pw;
     cout << "ID: "; cin >> id;
@@ -136,7 +138,7 @@ User* login() {
     return nullptr;
 }
 
-// °­ÀÇ½Ç ¿¹¾àÇÏ´Â ÇÔ¼ö ----------++ °ü¸®ÀÚ°¡ ±İÁö ¿¹¾à ÇÑ ½Ã°£ÀÌ¶û ¾È°ãÄ¡´ÂÁö È®ÀÎ ÇÏ´Â ³»¿ë Ãß°¡ ÇÊ¿ä.
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ ----------++ ï¿½ï¿½ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½Ì¶ï¿½ ï¿½È°ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ê¿ï¿½.
 void reserveClassroom(const string& user_id) {
     string room, day, start, end;
     cout << "classroom number: "; cin >> room;
@@ -144,7 +146,7 @@ void reserveClassroom(const string& user_id) {
     cout << "start time(HH:MM): "; cin >> start;
     cout << "end time(HH:MM): "; cin >> end;
 
-    // °ãÄ¡´Â ½Ã°£ ¿¹¾àÇß´ÂÁö Ã¼Å©
+    // ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½ï¿½ï¿½ Ã¼Å©
     for (const auto& r : reservations) {
         if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
             cout << ".!! Already reserved time\n";
@@ -152,7 +154,7 @@ void reserveClassroom(const string& user_id) {
         }
     }
 
-    // °­ÀÇ½Ç ¿¹¾à °¡´É½Ã°£ ¾È¿¡ ÀÖ´ÂÁö È®ÀÎ
+    // ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½É½Ã°ï¿½ ï¿½È¿ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     for (const auto& c : classrooms) {
         if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
             reservations.push_back({ user_id, room, day, start, end });
@@ -165,19 +167,181 @@ void reserveClassroom(const string& user_id) {
     cout << ".!! This is not a time available for reservation\n";
 }
 
-//¿¹¾à ¸ñ·Ï Ãâ·Â ¹× ¼öÁ¤ ÇÔ¼ö È£Ãâ
+//ê´€ë¦¬ì í”„ë¡¬í”„íŠ¸ì—ì„œ ì˜ˆì•½ ì¡°íšŒí•˜ëŠ” í•¨ìˆ˜ - ì¡°í˜„ìŠ¹
+void reservation_check(){
+    ifstream reservation_file("reservation.txt");
+    map<string, string> day_map = {
+        {"1", "Mon"},
+        {"2", "Tue"},
+        {"3", "Wed"},
+        {"4", "Thu"},
+        {"5", "Fri"},
+    };
+    string line;
+    bool found = false;
+    while (getline(reservation_file, line)) {
+        stringstream ss(line);
+        string user_id, class_num_str, start_time, end_time, day_str;
+
+        getline(ss, user_id, '\t');
+        getline(ss, class_num_str, '\t');
+        getline(ss, start_time, '\t');
+        getline(ss, end_time, '\t');
+        getline(ss, day_str, '\t');
+
+        cout << user_id << " "
+             << class_num_str << " " 
+             << day_map[day_str] << " "
+             << start_time << " " << end_time << " " << endl;
+        
+    }
+    
+    reservation_file.close();
+
+    if (!found) {
+        cout << "í•´ë‹¹ IDë¡œ ì˜ˆì•½ëœ ì •ë³´ê°€ ì—†ìŠµë‹ˆë‹¤." << endl;
+    }
+
+    cout << "\npress any key to continue..." << endl;
+    cin.get();
+
+}
+// ë¬¸ìì—´ì˜ ì²˜ìŒê³¼ ëì— ê³µë°±ì´ ìˆëŠ”ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜ - ì¡°í˜„ìŠ¹
+bool has_leading_or_trailing_space(const string& str) {
+    return (!str.empty() && isspace(str.front())) || (!str.empty() && isspace(str.back()));
+}
+
+// ì‚¬ìš©ì IDì˜ ìœ íš¨ì„±ì„ ê²€ì‚¬í•˜ëŠ” í•¨ìˆ˜ - ì¡°í˜„ìŠ¹
+bool is_valid_user_id(const string& id) {
+    if (id.length() < 3 || id.length() > 20) {
+        return false;
+    }
+    for (char c : id) {
+        if (!islower(c) && !isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// user.txtë¥¼ ì½ì–´ì„œ ìˆëŠ” ì‚¬ìš©ìì¸ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜ - ì¡°í˜„ìŠ¹
+bool does_user_exist(const string& user_id) {
+    ifstream user_file("user.txt");
+    bool user_exists = false;
+    if (user_file.is_open()) {
+        string line;
+        while (getline(user_file, line)) {
+            stringstream ss(line);
+            string file_user_id;
+            string password;
+            string is_admin;
+
+            getline(ss, file_user_id, '\t');
+            getline(ss, password, '\t');
+            getline(ss, is_admin, '\t');
+
+            if (file_user_id == user_id) {
+                user_exists = true;
+                break;
+            }
+        }
+        user_file.close();
+    } else {
+        cout << "ì˜¤ë¥˜: user.txt íŒŒì¼ì„ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤." << endl;
+        return false; // íŒŒì¼ ì—´ê¸° ì‹¤íŒ¨ ì‹œ ì‚¬ìš©ì ì—†ìŒìœ¼ë¡œ ì²˜ë¦¬
+    }
+    return user_exists;
+}
+
+//ê´€ë¦¬ì í”„ë¡¬í”„íŠ¸ì—ì„œ ì˜ˆì•½ ì·¨ì†Œí•˜ëŠ” í•¨ìˆ˜
+void reservation_delete(){
+    string user_id_to_cancel; //ì·¨ì†Œí•  user_id
+    bool valid_id = false; //ìœ íš¨ì„± ê²€ì‚¬ìš©
+    while (!valid_id) {
+        cout << "ID:";
+        getline(cin, user_id_to_cancel);
+        //ê³µë°± í™•ì¸, ë¬¸ë²• ê·œì¹™ í™•ì¸, reservation.txt ì— ìˆëŠ”ì§€
+        if (has_leading_or_trailing_space(user_id_to_cancel) || !is_valid_user_id(user_id_to_cancel) || !does_user_exist(user_id_to_cancel)) {
+            cout << ".!! ID doesnâ€™t exist." << endl;
+        } else {
+            valid_id = true;
+        }
+    }
+
+    ifstream in_file("reservation.txt");
+    vector<string> user_reservations;
+    if (in_file.is_open()) {
+        string line;
+        int reservation_number = 1; //ì˜ˆì•½ ì¡°íšŒí•˜ë©´ì„œ ìˆœì„œëŒ€ë¡œ 1ë²ˆ,2ë²ˆ
+        while (getline(in_file, line)) {
+            stringstream ss(line);
+            string user_id, class_num_str, start_time, end_time, day_str;
+
+            getline(ss, user_id, '\t');
+            getline(ss, class_num_str, '\t');
+            getline(ss, start_time, '\t');
+            getline(ss, end_time, '\t');
+            getline(ss, day_str, '\t');
+
+            if (user_id == user_id_to_cancel) { //ì…ë ¥í•œ IDì˜ ì˜ˆì•½ ë‚´ì—­ ì¶œë ¥
+                cout << reservation_number++ << ". " << class_num_str << " ";
+                if (day_str == "1") cout << "Mon";
+                else if (day_str == "2") cout << "Tue";
+                else if (day_str == "3") cout << "Wed";
+                else if (day_str == "4") cout << "Thu";
+                else if (day_str == "5") cout << "Fri";
+                cout << " " << start_time << "-" << end_time << endl;
+                user_reservations.push_back(line);
+            }
+        }
+        in_file.close();
+
+        int cancel_choice;
+        bool valid_choice = false;
+        while (!valid_choice) {
+            cout << "Enter the classroom number you want to cancel: ";
+            cin >> cancel_choice;
+            cin.ignore(); // ë²„í¼ ë¹„ìš°ê¸°
+
+            //ì‚­ì œí•˜ê³ ì í•˜ëŠ” ì˜ˆì•½ë²ˆí˜¸ê°€ ìœ íš¨í•´ì•¼í•¨
+            if (cancel_choice >= 1 && cancel_choice <= user_reservations.size()) {
+                valid_choice = true;
+                string reservation_to_cancel = user_reservations[cancel_choice - 1];
+
+                ifstream read_file("reservation.txt");
+                ofstream write_file("reservation_temp.txt");
+                if (read_file.is_open() && write_file.is_open()) {
+                    string current_line;
+                    bool canceled = false;
+                    while (getline(read_file, current_line)) {
+                        if (current_line != reservation_to_cancel) {
+                            write_file << current_line << endl;
+                        } else {
+                            canceled = true;
+                        }
+                    }
+                    read_file.close();
+                    write_file.close();
+                } 
+            } else {
+                cout << "!! Enter the index number in the menu." << endl;
+            }
+        }
+    }
+}
+//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
 void showListAndEditReservation() {
     while (true) {
         cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
         int input; cin >> input;
 
-        if(input == 1) { //¿¹¾àÀÚID, °­ÀÇ½Ç È£¼ö, ¿¹¾à ½Ã°£À» ÀÔ·Â ¹Ş°í µî·Ï
+        if(input == 1) { //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ID, ï¿½ï¿½ï¿½Ç½ï¿½ È£ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½Ş°ï¿½ ï¿½ï¿½ï¿½
         
         }
-        else if(input == 2) { //¿¹¾à ³»¿ª ¸®½ºÆ® Ãâ·Â 6.2.1 reservation.txt
+        else if(input == 2) { //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ 6.2.1 reservation.txt
             
         }
-        else if(input == 3) { //id¸¦ ÀÔ·Â¹Ş¾Æ ÇØ´ç »ç¿ëÀÚÀÇ ³»¾à ³»¿ª Ãâ·Â, ¿¹¾àµÈ °­ÀÇ½Ç Ãë¼Ò
+        else if(input == 3) { //idï¿½ï¿½ ï¿½Ô·Â¹Ş¾ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½
         
         }
         else{
@@ -187,7 +351,7 @@ void showListAndEditReservation() {
 }
 
 
-//°­ÀÇ½Ç »óÅÂ Ãâ·Â ¹× ¼öÁ¤ ÇÔ¼ö- Á¶¼öºó
+//ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void showAndEditClassroom(const string& admin_id) {
     while (true) {
         cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
@@ -206,7 +370,7 @@ void showAndEditClassroom(const string& admin_id) {
             string room; cin >> room;
             printTimeTable(room);
         }
-        else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt ¿¹¾à ÀüÃ¼ Çã¿ë °¡´ÉÇÏ°Ô
+        else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½
             cout << "classroom number: ";
             string room; cin >> room;
             bool roomFound = false;
@@ -226,15 +390,15 @@ void showAndEditClassroom(const string& admin_id) {
 
                     vector<Reservation> new_reservations;
 
-                    // ½Ã°£ È®ÀÎ °Ë»ç Ãß°¡ÇØ¾ßÇÔ.
-                    // ±âÁ¸ ¿¹¾à ¸®½ºÆ® ¼øÈ¸ÇÏ¸é¼­ ±İÁö(°ü¸®ÀÚ) ¿¹¾à Áß Çã¿ë½Ã°£´ë¿Í °ãÄ¡´Â ºÎºĞ ¼öÁ¤
+                    // ï¿½Ã°ï¿½ È®ï¿½ï¿½ ï¿½Ë»ï¿½ ï¿½ß°ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½.
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½È¸ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Îºï¿½ ï¿½ï¿½ï¿½ï¿½
                     for (auto it = reservations.begin(); it != reservations.end(); ) {
                         if (it->user_id == admin_id &&
                             it->room == room &&
                             it->day == to_string(day) &&
                             isTimeOverlap(it->start_time, it->end_time, start, end)) {
         
-                            // ºĞÇÒµÈ ±İÁö ½Ã°£À¸·Î Àç»ı¼º
+                            // ï¿½ï¿½ï¿½Òµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
                             if (it->start_time < start) {
                                 new_reservations.push_back({ admin_id, room, to_string(day), it->start_time, start });
                             }
@@ -242,7 +406,7 @@ void showAndEditClassroom(const string& admin_id) {
                                 new_reservations.push_back({ admin_id, room, to_string(day), end, it->end_time });
                             }
         
-                            // ±âÁ¸ ±İÁö ¿¹¾à »èÁ¦
+                            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                             it = reservations.erase(it);
                         }
                         else {
@@ -250,12 +414,12 @@ void showAndEditClassroom(const string& admin_id) {
                         }
                     }
         
-                    // »õ·Î¿î ±İÁö ¿¹¾à Ãß°¡
+                    // ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
                     for (const auto& r : new_reservations) {
                         reservations.push_back(r);
                     }
         
-                    // ÆÄÀÏ ÀüÃ¼ °»½Å
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
                     ofstream fout("reservation.txt");
                     for (const auto& r : reservations) {
                         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
@@ -269,7 +433,7 @@ void showAndEditClassroom(const string& admin_id) {
                 
             if (!roomFound) cout << ".!! Room not found\n";
         }
-        else if (input == 3) { // 6.3.2.3 ban reservation ¿¹¾à ±İÁö
+        else if (input == 3) { // 6.3.2.3 ban reservation ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             cout << "classroom number: ";
             string room; cin >> room;
             bool roomFound = false;
@@ -286,7 +450,7 @@ void showAndEditClassroom(const string& admin_id) {
                     string start, end;
                     cout << "start ban time: "; cin >> start;
                     cout << "end ban time: "; cin >> end;
-                    // ½ÇÁ¦·Î ¿äÀÏº°·Î ÀúÀåÇÏ´Â ±¸Á¶´Â ¾øÁö¸¸, ÀüÃ¼ ½Ã°£À¸·Î ¸·´Â ¹æ½ÄÀ¸·Î ´ëÃ¼
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ïºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½Ã¼ ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼
                     reservations.push_back({admin_id, room, to_string(day), start, end});
                     ofstream fout("reservation.txt", ios::app);
                     fout << admin_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
@@ -305,7 +469,7 @@ void showAndEditClassroom(const string& admin_id) {
 
 
 
-// ¿¹¾à Ãë¼Ò ±â´É
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 void cancelReservation(const string& user_id) {
     vector<int> indices;
     for (int i = 0; i < reservations.size(); ++i) {
@@ -332,9 +496,9 @@ void cancelReservation(const string& user_id) {
     cout << "Reservation canceled\n";
 }
 
-// ÇÁ·Î±×·¥ ½ÃÀÛ
+// ï¿½ï¿½ï¿½Î±×·ï¿½ ï¿½ï¿½ï¿½ï¿½
 int main() {
-    // ÆÄÀÏ ·Îµù ¾ÈµÇ¸é Á¾·áÇÔ, µ¥ÀÌÅÍ ¹«°á¼º ÆÄÆ®¿¡¼­ Ãß°¡ÇÒ ¿¹Á¤
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ÈµÇ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½á¼º ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     if (!loadUsers() || !loadClassrooms() || !loadReservations()) {
         return 1;
     }
@@ -348,16 +512,16 @@ int main() {
             while (!user) user = login();
             if (user->is_admin) {
                 cout << "-- Main for manager --\n";
-                // °ü¸®ÀÚ ±â´É - Á¶¼öºó
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 while (true){
                     cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
                     int choice; cin >> choice;
                     if(choice == 1){
-                        //¿¹¾à ¸ñ·Ï Ãâ·Â ¹× ¼öÁ¤ ÇÔ¼ö È£Ãâ
+                        //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
                         
                     }
                     else if (choice == 2){
-                        //°­ÀÇ½Ç »óÅÂ Ãâ·Â ¹× ¼öÁ¤ ÇÔ¼ö È£Ãâ
+                        //ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
                         showAndEditClassroom(user -> id);
                     }
                     else if (choice == 3){
@@ -387,7 +551,7 @@ int main() {
             }
         }
         //else if (sel == 2) {
-        //    // È¸¿ø°¡ÀÔ
+        //    // È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         //    string id, pw;
         //    cout << "ID: "; cin >> id;
         //    cout << "PW: "; cin >> pw;
@@ -397,7 +561,7 @@ int main() {
         //    cout << "Registration complete\n";
         //}
         else if (sel == 2) {
-            // È¸¿ø°¡ÀÔ
+            // È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             string id, pw;
             bool valid = false;
 
@@ -405,7 +569,7 @@ int main() {
                 cout << "ID: ";
                 cin >> id;
 
-                // ID À¯È¿¼º °Ë»ç (±æÀÌ, ¹®ÀÚ Á¾·ù)
+                // ID ï¿½ï¿½È¿ï¿½ï¿½ ï¿½Ë»ï¿½ (ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 if (id.length() < 3 || id.length() > 20) {
                     cout << ".!! Incorrect form: ID must be between 3 and 20 characters.\n";
                     continue;
@@ -423,7 +587,7 @@ int main() {
                     continue;
                 }
 
-                // Áßº¹ Ã¼Å©
+                // ï¿½ßºï¿½ Ã¼Å©
                 bool duplicated = false;
                 for (const auto& u : users) {
                     if (u.id == id) {
@@ -437,11 +601,11 @@ int main() {
                     continue;
                 }
 
-                // ºñ¹Ğ¹øÈ£ ÀÔ·Â
+                // ï¿½ï¿½Ğ¹ï¿½È£ ï¿½Ô·ï¿½
                 cout << "PW: ";
                 cin >> pw;
 
-                // ºñ¹Ğ¹øÈ£ À¯È¿¼º °Ë»ç
+                // ï¿½ï¿½Ğ¹ï¿½È£ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½Ë»ï¿½
                 if (pw.length() < 4 || pw.length() > 20) {
                     cout << ".!! Incorrect form: password must be 4~20 characters.\n";
                     continue;
@@ -462,7 +626,7 @@ int main() {
                     continue;
                 }
 
-                // Åë°ú ½Ã µî·Ï
+                // ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½
                 valid = true;
                 users.push_back({ id, pw, false });
                 ofstream fout("user.txt", ios::app);
@@ -472,7 +636,7 @@ int main() {
             }
         }
         else if (sel == 3) {
-            // Á¾·á È®ÀÎ
+            // ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
             string confirm;
             cout << "If you want to quit this program, enter 'quit': ";
             cin >> confirm;
