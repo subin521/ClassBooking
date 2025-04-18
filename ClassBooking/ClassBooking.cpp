@@ -478,6 +478,12 @@ int main() {
             cin >> confirm;
             if (confirm == "quit") break;
         }
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << ".!! Enter the index number in the menu.\n";
+            continue;
+        }
     }
     return 0;
 }
