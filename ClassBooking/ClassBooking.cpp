@@ -91,6 +91,58 @@ bool loadReservations() {
     return true;
 }
 
+// 존재하는 강의실인지 확인
+bool isExistRoomNumber(const string& input) {
+    for (const Classroom& cls : classrooms) {
+        if (cls.room == input) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 존재하는 사용자인지 확인 
+bool isExistUser(const string& input) {
+    for (const User& usr : users) {
+        if (usr.id == input) {
+            return true;
+        }
+    }
+    return false;
+}
+
+string InputClassroom() {
+    string input;
+
+    while (true) {
+        cout << "classroom number: ";
+        cin >> input;
+
+        // 포맷이 잘못됐거나 존재하지 않는 강의실이면 다시 입력
+        if (!validateRoomNumber(input) || !isExistRoomNumber(input)) {
+            cout << ".!! The classroom you entered doesn't exist. Please try again.\n";
+        }
+        else {
+            return input;  // 유효하면 반환
+        }
+    }
+}
+
+string InputUser() {
+    string input;
+
+    while (true) {
+        cout << "ID:";
+        cin >> input;
+
+        if (!isExistUser(input)) {
+            cout << ".!! ID doesn't exist.\n";
+        }
+        else { return input; }
+    }
+
+}
+
 // 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
     cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
