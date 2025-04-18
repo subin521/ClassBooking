@@ -144,12 +144,28 @@ string InputUser() {
 
 }
 
-// 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
-    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room; cout << endl;
-    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room; cout << endl;
-    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room; cout << endl;
-    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room; cout << endl;
+    map<string, vector<Classroom>> floorMap;
+
+    // 층별로 강의실 분류
+    for (const Classroom& cls : classrooms) {
+        if (cls.room.length() >= 1) {
+            string floor = cls.room.substr(0, 1); // "3" -> 3층
+            floorMap[floor].push_back(cls);
+        }
+    }
+
+    // 출력
+    for (const auto& pair : floorMap) {
+        cout << pair.first << "F: ";
+        for (size_t i = 0; i < pair.second.size(); ++i) {
+            cout << pair.second[i].room;
+            if (i != pair.second.size() - 1) {
+                cout << ", ";
+            }
+        }
+        cout << endl;
+    }
 }
 
 // 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
