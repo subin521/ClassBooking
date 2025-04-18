@@ -11,6 +11,7 @@
 #include <string>  // 문자열 타입 사용
 #include <vector> // 동적 배열 벡터 사용
 #include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
+#include "util.hpp"
 using namespace std;
 
 // 사용자 구조체
