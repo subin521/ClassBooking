@@ -386,15 +386,90 @@ int main() {
                 }
             }
         }
+        //else if (sel == 2) {
+        //    // 회원가입
+        //    string id, pw;
+        //    cout << "ID: "; cin >> id;
+        //    cout << "PW: "; cin >> pw;
+        //    users.push_back({ id, pw, false });
+        //    ofstream fout("user.txt", ios::app);
+        //    fout << id << "\t" << pw << "\t0\n";
+        //    cout << "Registration complete\n";
+        //}
         else if (sel == 2) {
             // 회원가입
             string id, pw;
-            cout << "ID: "; cin >> id;
-            cout << "PW: "; cin >> pw;
-            users.push_back({ id, pw, false });
-            ofstream fout("user.txt", ios::app);
-            fout << id << "\t" << pw << "\t0\n";
-            cout << "Registration complete\n";
+            bool valid = false;
+
+            while (!valid) {
+                cout << "ID: ";
+                cin >> id;
+
+                // ID 유효성 검사 (길이, 문자 종류)
+                if (id.length() < 3 || id.length() > 20) {
+                    cout << ".!! Incorrect form: ID must be between 3 and 20 characters.\n";
+                    continue;
+                }
+
+                bool isValidId = true;
+                for (char c : id) {
+                    if (!(islower(c) || isdigit(c))) {
+                        isValidId = false;
+                        break;
+                    }
+                }
+                if (!isValidId) {
+                    cout << ".!! Incorrect form: use only lowercase Engilish and number.\n";
+                    continue;
+                }
+
+                // 중복 체크
+                bool duplicated = false;
+                for (const auto& u : users) {
+                    if (u.id == id) {
+                        duplicated = true;
+                        break;
+                    }
+                }
+
+                if (duplicated) {
+                    cout << ".!! ID already exists.\n";
+                    continue;
+                }
+
+                // 비밀번호 입력
+                cout << "PW: ";
+                cin >> pw;
+
+                // 비밀번호 유효성 검사
+                if (pw.length() < 4 || pw.length() > 20) {
+                    cout << ".!! Incorrect form: password must be 4~20 characters.\n";
+                    continue;
+                }
+                if (pw.find(' ') != string::npos) {
+                    cout << ".!! Incorrect form: space not allowed in password.\n";
+                    continue;
+                }
+
+                bool hasAlpha = false, hasDigit = false;
+                for (char c : pw) {
+                    if (isalpha(c)) hasAlpha = true;
+                    if (isdigit(c)) hasDigit = true;
+                }
+
+                if (!hasAlpha || !hasDigit) {
+                    cout << ".!! Incorrect form: password must include alphabet and number.\n";
+                    continue;
+                }
+
+                // 통과 시 등록
+                valid = true;
+                users.push_back({ id, pw, false });
+                ofstream fout("user.txt", ios::app);
+                fout << id << "\t" << pw << "\t0\n";
+                fout.close();
+                cout << "Registration complete\n";
+            }
         }
         else if (sel == 3) {
             // 종료 확인
