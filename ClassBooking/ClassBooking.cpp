@@ -255,13 +255,11 @@ void showAndEditClassroom(const string& admin_id) {
 
         if (input == 1) { // 6.3.2.1 check reservation
             printClassroomList();
-            cout << "classroom number: ";
-            string room; cin >> room;
+            string room = InputClassroom();
             printTimeTable(room);
         }
         else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
-            cout << "classroom number: ";
-            string room; cin >> room;
+            string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
                 if (c.room == room) {
@@ -323,8 +321,7 @@ void showAndEditClassroom(const string& admin_id) {
             if (!roomFound) cout << ".!! Room not found\n";
         }
         else if (input == 3) { // 6.3.2.3 ban reservation 예약 금지
-            cout << "classroom number: ";
-            string room; cin >> room;
+            string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
                 if (c.room == room) {
@@ -433,8 +430,7 @@ int main() {
                     int c; cin >> c;
                     if (c == 1) {
                         printClassroomList();
-                        cout << "classroom number: ";
-                        string room; cin >> room;
+                        string room = InputClassroom();
                         printTimeTable(room);
                     }
                     else if (c == 2) reserveClassroom(user->id);
