@@ -146,10 +146,10 @@ string InputUser() {
 
 // 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
-    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
-    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
-    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room << ", "; cout << endl;
-    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room << ", "; cout << endl;
+    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room; cout << endl;
+    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room; cout << endl;
+    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room; cout << endl;
+    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room; cout << endl;
 }
 
 // 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
