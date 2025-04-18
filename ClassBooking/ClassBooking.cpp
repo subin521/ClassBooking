@@ -191,8 +191,8 @@ User* login() {
 
 // 강의실 예약하는 함수 ----------++ 관리자가 금지 예약 한 시간이랑 안겹치는지 확인 하는 내용 추가 필요.
 void reserveClassroom(const string& user_id) {
-    string room, day, start, end;
-    cout << "classroom number: "; cin >> room;
+    string day, start, end;
+    string room = InputClassroom();  // 함수 호출하면서 room을 받아옴
     cout << "day(1~5): "; cin >> day;
     cout << "start time(HH:MM): "; cin >> start;
     cout << "end time(HH:MM): "; cin >> end;
@@ -356,7 +356,11 @@ void showAndEditClassroom(const string& admin_id) {
     }
 }
 
-
+// 관리자가 강의실 예약하는 함수
+void adminReserveClassroom() {
+    string user_id = InputUser();
+    reserveClassroom(user_id);
+}
 
 // 예약 취소 기능
 void cancelReservation(const string& user_id) {
@@ -407,7 +411,7 @@ int main() {
                     int choice; cin >> choice;
                     if(choice == 1){
                         //예약 목록 출력 및 수정 함수 호출
-                        
+                        adminReserveClassroom();
                     }
                     else if (choice == 2){
                         //강의실 상태 출력 및 수정 함수 호출
