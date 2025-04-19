@@ -234,28 +234,6 @@ void reserveClassroom(const string& user_id) {
     cout << ".!! This is not a time available for reservation\n";
 }
 
-//예약 목록 출력 및 수정 함수 호출
-void showListAndEditReservation() {
-    while (true) {
-        cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
-        int input; cin >> input;
-
-        if(input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
-        
-        }
-        else if(input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
-            
-        }
-        else if(input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
-        
-        }
-        else{
-            cout << ".!! Enter the index number in the menu.\n";
-        }
-    }
-}
-
-
 //강의실 상태 출력 및 수정 함수- 조수빈
 void showAndEditClassroom(const string& admin_id) {
     while (true) {
@@ -375,6 +353,20 @@ void adminReserveClassroom() {
     reserveClassroom(user_id);
 }
 
+// 관리자가 예약 내역을 출력하는 함수 
+void printAllReservations() {
+    for (const Reservation& r : reservations) {
+        cout<< r.user_id << " "
+            << r.room << " "
+            << r.day << " "
+            << r.start_time << " "
+            << r.end_time << endl;
+    }
+    cout << "Press any key to continue...";
+    cin.ignore(); 
+    cin.get();    
+}
+
 // 예약 취소 기능
 void cancelReservation(const string& user_id) {
     vector<int> indices;
@@ -402,6 +394,28 @@ void cancelReservation(const string& user_id) {
     cout << "Reservation canceled\n";
 }
 
+//예약 목록 출력 및 수정 함수 호출
+void showListAndEditReservation() {
+    while (true) {
+        cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
+        int input; cin >> input;
+
+        if (input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
+            adminReserveClassroom();
+        }
+        else if (input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
+            printAllReservations();
+        }
+        else if (input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
+            string user_id = InputUser();
+            cancelReservation(user_id);
+        }
+        else {
+            cout << ".!! Enter the index number in the menu.\n";
+        }
+    }
+}
+
 // 프로그램 시작
 int main() {
     // 파일 로딩 안되면 종료함, 데이터 무결성 파트에서 추가할 예정
@@ -424,7 +438,7 @@ int main() {
                     int choice; cin >> choice;
                     if(choice == 1){
                         //예약 목록 출력 및 수정 함수 호출
-                        adminReserveClassroom();
+                        showListAndEditReservation();
                     }
                     else if (choice == 2){
                         //강의실 상태 출력 및 수정 함수 호출
