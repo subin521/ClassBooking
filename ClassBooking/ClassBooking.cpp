@@ -14,7 +14,6 @@
 #include "util.hpp"
 #include <regex>
 #include <map>
-#include <limits> // numeric_limits 사용
 
 using namespace std;
 
@@ -106,7 +105,7 @@ bool isExistRoomNumber(const string& input) {
     return false;
 }
 
-// 존재하는 사용자인지 확인
+// 존재하는 사용자인지 확인 
 bool isExistUser(const string& input) {
     for (const User& usr : users) {
         if (usr.id == input) {
@@ -174,7 +173,7 @@ void printClassroomList() {
 
 void printTimeTable(const string& room) {
     // 요일 헤더
-    cout << "                Mon   Tue   Wed   Thu   Fri" << endl;
+    cout << "                 Mon   Tue   Wed   Thu   Fri" << endl;
 
     for (int t = 0; t < 9; ++t) {
         string t1 = times[t];
@@ -183,12 +182,8 @@ void printTimeTable(const string& room) {
 
         cout << timeLabel;
 
-        // 정렬 맞추기용 공백 (문자열 길이가 항상 11자 → 17자 맞춤)
-        if (timeLabel.length() < 17) {
-            for (size_t i = 0; i < 17 - timeLabel.length(); ++i) {
-                cout << " ";
-            }
-        }
+        // 정렬 맞추기용 공백 (문자열 길이가 항상 11자 → 13자 맞춤)
+        if (timeLabel.length() < 13) cout << "  ";
 
         for (int d = 1; d <= 5; ++d) {
             bool reserved = false;
@@ -199,7 +194,7 @@ void printTimeTable(const string& room) {
                     break;
                 }
             }
-            cout << (reserved ? "  X  " : "  O  ");
+            cout << "     " << (reserved ? "X" : "O");
         }
         cout << endl;
     }
@@ -302,184 +297,21 @@ void reserveClassroom(const string& user_id) {
 
     cout << ".!! This is not a time available for reservation\n";
 }
-//관리자 프롬프트에서 예약 조회하는 함수 - 조현승
-void reservation_check(){
-    ifstream reservation_file("reservation.txt");
-    map<string, string> day_map = {
-        {"1", "Mon"},
-        {"2", "Tue"},
-        {"3", "Wed"},
-        {"4", "Thu"},
-        {"5", "Fri"},
-    };
-    string line;
-    bool found = false;
-    while (getline(reservation_file, line)) {
-        stringstream ss(line);
-        string user_id, class_num_str, start_time, end_time, day_str;
-
-        getline(ss, user_id, '\t');
-        getline(ss, class_num_str, '\t');
-        getline(ss, start_time, '\t');
-        getline(ss, end_time, '\t');
-        getline(ss, day_str, '\t');
-
-        cout << user_id << " "
-             << class_num_str << " " 
-             << day_map[day_str] << " "
-             << start_time << " " << end_time << " " << endl;
-        
-    }
-    
-    reservation_file.close();
-
-    if (!found) {
-        cout << "해당 ID로 예약된 정보가 없습니다." << endl;
-    }
-
-    cout << "\npress any key to continue..." << endl;
-    cin.get();
-
-}
-// 문자열의 처음과 끝에 공백이 있는지 확인하는 함수 - 조현승
-bool has_leading_or_trailing_space(const string& str) {
-    return (!str.empty() && isspace(str.front())) || (!str.empty() && isspace(str.back()));
-}
-
-// 사용자 ID의 유효성을 검사하는 함수 - 조현승
-bool is_valid_user_id(const string& id) {
-    if (id.length() < 3 || id.length() > 20) {
-        return false;
-    }
-    for (char c : id) {
-        if (!islower(c) && !isdigit(c)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// user.txt를 읽어서 있는 사용자인지 확인하는 함수 - 조현승
-bool does_user_exist(const string& user_id) {
-    ifstream user_file("user.txt");
-    bool user_exists = false;
-    if (user_file.is_open()) {
-        string line;
-        while (getline(user_file, line)) {
-            stringstream ss(line);
-            string file_user_id;
-            string password;
-            string is_admin;
-
-            getline(ss, file_user_id, '\t');
-            getline(ss, password, '\t');
-            getline(ss, is_admin, '\t');
-
-            if (file_user_id == user_id) {
-                user_exists = true;
-                break;
-            }
-        }
-        user_file.close();
-    } else {
-        cout << "오류: user.txt 파일을 열 수 없습니다." << endl;
-        return false; // 파일 열기 실패 시 사용자 없음으로 처리
-    }
-    return user_exists;
-}
-
-//관리자 프롬프트에서 예약 취소하는 함수
-void reservation_delete(){
-    string user_id_to_cancel; //취소할 user_id
-    bool valid_id = false; //유효성 검사용
-    while (!valid_id) {
-        cout << "ID:";
-        getline(cin, user_id_to_cancel);
-        //공백 확인, 문법 규칙 확인, reservation.txt 에 있는지
-        if (has_leading_or_trailing_space(user_id_to_cancel) || !is_valid_user_id(user_id_to_cancel) || !does_user_exist(user_id_to_cancel)) {
-            cout << ".!! ID doesn’t exist." << endl;
-        } else {
-            valid_id = true;
-        }
-    }
-
-    ifstream in_file("reservation.txt");
-    vector<string> user_reservations;
-    if (in_file.is_open()) {
-        string line;
-        int reservation_number = 1; //예약 조회하면서 순서대로 1번,2번
-        while (getline(in_file, line)) {
-            stringstream ss(line);
-            string user_id, class_num_str, start_time, end_time, day_str;
-
-            getline(ss, user_id, '\t');
-            getline(ss, class_num_str, '\t');
-            getline(ss, start_time, '\t');
-            getline(ss, end_time, '\t');
-            getline(ss, day_str, '\t');
-
-            if (user_id == user_id_to_cancel) { //입력한 ID의 예약 내역 출력
-                cout << reservation_number++ << ". " << class_num_str << " ";
-                if (day_str == "1") cout << "Mon";
-                else if (day_str == "2") cout << "Tue";
-                else if (day_str == "3") cout << "Wed";
-                else if (day_str == "4") cout << "Thu";
-                else if (day_str == "5") cout << "Fri";
-                cout << " " << start_time << "-" << end_time << endl;
-                user_reservations.push_back(line);
-            }
-        }
-        in_file.close();
-
-        int cancel_choice;
-        bool valid_choice = false;
-        while (!valid_choice) {
-            cout << "Enter the classroom number you want to cancel: ";
-            cin >> cancel_choice;
-            cin.ignore(); // 버퍼 비우기
-
-            //삭제하고자 하는 예약번호가 유효해야함
-            if (cancel_choice >= 1 && cancel_choice <= user_reservations.size()) {
-                valid_choice = true;
-                string reservation_to_cancel = user_reservations[cancel_choice - 1];
-
-                ifstream read_file("reservation.txt");
-                ofstream write_file("reservation_temp.txt");
-                if (read_file.is_open() && write_file.is_open()) {
-                    string current_line;
-                    bool canceled = false;
-                    while (getline(read_file, current_line)) {
-                        if (current_line != reservation_to_cancel) {
-                            write_file << current_line << endl;
-                        } else {
-                            canceled = true;
-                        }
-                    }
-                    read_file.close();
-                    write_file.close();
-                } 
-            } else {
-                cout << "!! Enter the index number in the menu." << endl;
-            }
-        }
-    }
-}
 
 //예약 목록 출력 및 수정 함수 호출
 void showListAndEditReservation() {
     while (true) {
         cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
         int input; cin >> input;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // 버퍼 비우기
 
         if(input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
-            adminReserveClassroom();
+        
         }
         else if(input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
-            reservation_check();
+            
         }
         else if(input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
-            reservation_delete();
+        
         }
         else{
             cout << ".!! Enter the index number in the menu.\n";
@@ -491,7 +323,7 @@ void showListAndEditReservation() {
 //강의실 상태 출력 및 수정 함수- 조수빈
 void showAndEditClassroom(const string& admin_id) {
     while (true) {
-        cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n4. back\n>> ";
+        cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
         int input; cin >> input;
 
         if (cin.fail()) {
@@ -520,8 +352,8 @@ void showAndEditClassroom(const string& admin_id) {
                         break;
                     }
                     string start, end;
-                    cout << "start accept time (HH:MM): "; cin >> start;
-                    cout << "end accept time (HH:MM): "; cin >> end;
+                    cout << "start accept time: "; cin >> start;
+                    cout << "end accept time: "; cin >> end;
 
                     vector<Reservation> new_reservations;
 
@@ -532,7 +364,7 @@ void showAndEditClassroom(const string& admin_id) {
                             it->room == room &&
                             it->day == to_string(day) &&
                             isTimeOverlap(it->start_time, it->end_time, start, end)) {
-
+        
                             // 분할된 금지 시간으로 재생성
                             if (it->start_time < start) {
                                 new_reservations.push_back({ admin_id, room, to_string(day), it->start_time, start });
@@ -540,7 +372,7 @@ void showAndEditClassroom(const string& admin_id) {
                             if (it->end_time > end) {
                                 new_reservations.push_back({ admin_id, room, to_string(day), end, it->end_time });
                             }
-
+        
                             // 기존 금지 예약 삭제
                             it = reservations.erase(it);
                         }
@@ -548,25 +380,24 @@ void showAndEditClassroom(const string& admin_id) {
                             ++it;
                         }
                     }
-
+        
                     // 새로운 금지 예약 추가
                     for (const auto& r : new_reservations) {
                         reservations.push_back(r);
                     }
-
+        
                     // 파일 전체 갱신
                     ofstream fout("reservation.txt");
                     for (const auto& r : reservations) {
                         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
                              << r.end_time << "\t" << r.day << endl;
                     }
-                    fout.close();
-
+        
                     cout << "Accept completed.\n";
                     break;
                 }
             }
-
+                
             if (!roomFound) cout << ".!! Room not found\n";
         }
         else if (input == 3) { // 6.3.2.3 ban reservation 예약 금지
@@ -583,25 +414,22 @@ void showAndEditClassroom(const string& admin_id) {
                         break;
                     }
                     string start, end;
-                    cout << "start ban time (HH:MM): "; cin >> start;
-                    cout << "end ban time (HH:MM): "; cin >> end;
+                    cout << "start ban time: "; cin >> start;
+                    cout << "end ban time: "; cin >> end;
                     // 실제로 요일별로 저장하는 구조는 없지만, 전체 시간으로 막는 방식으로 대체
                     reservations.push_back({admin_id, room, to_string(day), start, end});
                     ofstream fout("reservation.txt", ios::app);
                     fout << admin_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
-                    fout.close();
                     cout << "Ban completed.\n";
                     break;
                 }
             }
             if (!roomFound) cout << ".!! Room not found\n";
         }
-        else if (input == 4) {
-            break; // 관리자 메뉴로 돌아가기
-        }
         else {
             cout << ".!! Enter the index number in the menu.\n";
         }
+        break;
     }
 }
 
