@@ -171,8 +171,6 @@ void printClassroomList() {
 }
 
 void printTimeTable(const string& room) {
-    cout << "classroom number: " << room << endl;
-
     // 요일 헤더
     cout << "                 Mon   Tue   Wed   Thu   Fri" << endl;
 
