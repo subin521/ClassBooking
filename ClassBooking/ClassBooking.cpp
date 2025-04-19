@@ -216,6 +216,23 @@ User* login() {
     cout << ".!! ID or PW is incorrect\n";
     return nullptr;
 }
+
+//로그아웃
+bool logout() {
+    string input;
+	cout << "Would you like to log out? ";
+    cin >> input;
+
+    if (input == "Y") {
+        return true;
+    }
+    else if (input == "N") {
+        return false;
+    }
+    cout << ".!! You can only enter upper case 'Y' or 'N'." << endl;
+    return logout();
+}
+
 void reserveClassroom(const string& user_id) {
     string day, start, end;
     string room = InputClassroom();
@@ -454,7 +471,7 @@ void cancelReservation(const string& user_id) {
     cout << "Enter the number you want to cancel: ";
     int choice; cin >> choice;
     if (choice < 1 || choice > indices.size()) {
-        cout << ".!! Invalid input\n";
+        cout << ".!! Enter the index number in the menu.\n";
         return;
     }
     reservations.erase(reservations.begin() + indices[choice - 1]);
@@ -462,7 +479,7 @@ void cancelReservation(const string& user_id) {
     for (auto& r : reservations) {
         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
     }
-    cout << "Reservation canceled\n";
+    cout << "Reservation canceled.\n";
 }
 
 // 프로그램 시작
@@ -514,7 +531,9 @@ int main() {
                     }
                     else if (c == 2) reserveClassroom(user->id);
                     else if (c == 3) cancelReservation(user->id);
-                    else if (c == 4) break;
+                    else if (c == 4) {
+                        if (logout()) break;
+                    }
                 }
             }
         }
