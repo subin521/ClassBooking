@@ -12,6 +12,8 @@
 #include <vector> // 동적 배열 벡터 사용
 #include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
 #include "util.hpp"
+#include <regex>
+
 using namespace std;
 
 // 사용자 구조체
@@ -168,30 +170,40 @@ void printClassroomList() {
     }
 }
 
-// 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
 void printTimeTable(const string& room) {
-    cout << "      ";
-    for (auto& day : weekdays) cout << setw(6) << day;
-    cout << endl;
+    // 요일 헤더
+    cout << "                 Mon   Tue   Wed   Thu   Fri" << endl;
+
     for (int t = 0; t < 9; ++t) {
         string t1 = times[t];
         string t2 = times[t + 1];
-        cout << t1 << "~" << t2 << " ";
+        string timeLabel = t1 + "~" + t2;
+
+        cout << timeLabel;
+
+        // 정렬 맞추기용 공백 (문자열 길이가 항상 11자 → 13자 맞춤)
+        if (timeLabel.length() < 13) cout << "  ";
+
         for (int d = 1; d <= 5; ++d) {
             bool reserved = false;
-            for (auto& r : reservations) {
-                if (r.room == room && stoi(r.day) == d && isTimeOverlap(r.start_time, r.end_time, t1, t2)) {
+            for (const auto& r : reservations) {
+                if (r.room == room && stoi(r.day) == d &&
+                    isTimeOverlap(r.start_time, r.end_time, t1, t2)) {
                     reserved = true;
                     break;
                 }
             }
-            cout << setw(6) << (reserved ? "X" : "O");
+            cout << "     " << (reserved ? "X" : "O");
         }
         cout << endl;
     }
-    cout << "press any key to continue ...";
-    cin.ignore(); cin.get();  // 아무 키 대기
+
+    cout << "\npress any key to continue ...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 }
+
+
 
 // 로그인 기능, 테스트 용으로 구현한거라 보완 필요
 User* login() {
@@ -204,16 +216,65 @@ User* login() {
     cout << ".!! ID or PW is incorrect\n";
     return nullptr;
 }
-
-// 강의실 예약하는 함수 ----------++ 관리자가 금지 예약 한 시간이랑 안겹치는지 확인 하는 내용 추가 필요.
 void reserveClassroom(const string& user_id) {
     string day, start, end;
-    string room = InputClassroom();  // 함수 호출하면서 room을 받아옴
-    cout << "day(1~5): "; cin >> day;
-    cout << "start time(HH:MM): "; cin >> start;
-    cout << "end time(HH:MM): "; cin >> end;
+    string room = InputClassroom();
 
-    // 겹치는 시간 예약했는지 체크
+    // --- 요일 입력 유효성 검사 ---
+    while (true) {
+        cout << "day (1~5): ";
+        cin >> day;
+        if (day.length() == 1 && day[0] >= '1' && day[0] <= '5') break;
+        cout << "Enter the index number of the day of the week.\n";
+    }
+
+    // --- 사용자 유형 확인 (admin 여부) ---
+    bool is_admin = false;
+    for (const auto& u : users) {
+        if (u.id == user_id) {
+            is_admin = u.is_admin;
+            break;
+        }
+    }
+
+    // --- 시간 입력 유효성 검사 ---
+    while (true) {
+        cout << "start time (HH:MM): ";
+        cin >> start;
+        cout << "end time (HH:MM): ";
+        cin >> end;
+
+        regex pattern("^([01]?[0-9]|2[0-3]):00$");
+        if (!regex_match(start, pattern) || !regex_match(end, pattern)) {
+            cout << ".!! Incorrect form: an example of correct input is '14:00'.\n";
+            continue;
+        }
+
+        int sh = stoi(start.substr(0, 2));
+        int eh = stoi(end.substr(0, 2));
+
+        if (sh < 9 || sh > 17) {
+            cout << ".!! Incorrect form: start must be between 09:00 and 17:00.\n";
+            continue;
+        }
+        if (eh < 10 || eh > 18) {
+            cout << ".!! Incorrect form: end must be between 10:00 and 18:00.\n";
+            continue;
+        }
+        if (sh >= eh) {
+            cout << ".!! Start time must be earlier than end time.\n";
+            continue;
+        }
+
+        if (!is_admin && eh - sh != 1) {
+            cout << ".!! General users can only reserve exactly 1 hour.\n";
+            continue;
+        }
+
+        break;
+    }
+
+    // --- 예약 충돌 확인 ---
     for (const auto& r : reservations) {
         if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
             cout << ".!! Already reserved time\n";
@@ -221,16 +282,18 @@ void reserveClassroom(const string& user_id) {
         }
     }
 
-    // 강의실 예약 가능시간 안에 있는지 확인
+    // --- 강의실 예약 가능 시간 확인 ---
     for (const auto& c : classrooms) {
         if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
             reservations.push_back({ user_id, room, day, start, end });
             ofstream fout("reservation.txt", ios::app);
             fout << user_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
+            fout.close();
             cout << "Reservation completed\n";
             return;
         }
     }
+
     cout << ".!! This is not a time available for reservation\n";
 }
 
