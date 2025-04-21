@@ -116,6 +116,33 @@ bool isExistUser(const string& input) {
     return false;
 }
 
+// 공백 제거 함수
+string removeWhitespace(const string& input) {
+    string result;
+    for (char ch : input) {
+        if (ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r') {
+            result += ch;
+        }
+    }
+    //cout << "[DEBUG] removeWhitespace result: \"" << result << "\"" << endl;
+    return result;
+}
+
+// 인덱스 입력 유효성 검사
+bool checkIdx(string callLocation, string& inputIdx) {
+    string cleaned = removeWhitespace(inputIdx);
+    cout << "[DEBUG] cleaned: " << cleaned << endl;
+    if (cleaned.length() == 1 && isdigit(cleaned[0])) {
+        return false;  // 정상 입력
+    }
+    string errPhrase;
+    if (callLocation == "day") errPhrase = "of the day of the week.";
+    else if (callLocation == "menu") errPhrase = "in the menu.";
+    else errPhrase = ".";
+    cout << ".!! Enter the index number " << errPhrase << endl;
+    return true;  // 비정상 입력
+}
+
 string InputClassroom() {
     string input;
 
@@ -242,9 +269,10 @@ void reserveClassroom(const string& user_id) {
     // --- 요일 입력 유효성 검사 ---
     while (true) {
         cout << "day (1~5): ";
-        cin >> day;
-        if (day.length() == 1 && day[0] >= '1' && day[0] <= '5') break;
-        cout << "Enter the index number of the day of the week.\n";
+        cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+        getline(cin, day);
+        if (checkIdx("day", day)) continue;
+        else break;
     }
 
     // --- 사용자 유형 확인 (admin 여부) ---
@@ -537,33 +565,40 @@ void showListAndEditReservation() {
 void showAndEditClassroom(const string& admin_id) {
     while (true) {
         cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
-        int input; cin >> input;
+        string input;
+        cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+        getline(cin, input);
 
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << ".!! Enter the index number in the menu.\n";
-            continue;
-        }
+        //if (cin.fail()) {
+        //    cin.clear();
+        //    cin.ignore(1000, '\n');
+        //    cout << ".!! Enter the index number in the menu.\n";
+        //    continue;
+        //}
+        if (checkIdx("menu",input)) continue;
 
-        if (input == 1) { // 6.3.2.1 check reservation
+        if (stoi(input) == 1) { // 6.3.2.1 check reservation
             printClassroomList();
             string room = InputClassroom();
             printTimeTable(room);
         }
-        else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
+        else if (stoi(input) == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
             string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
                 if (c.room == room) {
                     roomFound = true;
-                    cout << "enter a number corresponding to the day of the week\n"
-                         << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
-                    int day; cin >> day;
-                    if (day < 1 || day > 5) {
-                        cout << ".!! Invalid weekday input\n";
-                        break;
+                    string day;
+                    while (true) {
+                        cout << "enter a number corresponding to the day of the week\n"
+                            << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+                        getline(cin, day);
+                        if (checkIdx("day",day)) continue;
+                        int dayInt = stoi(day);
+                        if (dayInt >= 1 && dayInt <= 5) break;
+
                     }
+                    
                     string start, end;
                     cout << "start accept time: "; cin >> start;
                     cout << "end accept time: "; cin >> end;
@@ -575,15 +610,15 @@ void showAndEditClassroom(const string& admin_id) {
                     for (auto it = reservations.begin(); it != reservations.end(); ) {
                         if (it->user_id == admin_id &&
                             it->room == room &&
-                            it->day == to_string(day) &&
+                            it->day == day &&
                             isTimeOverlap(it->start_time, it->end_time, start, end)) {
         
                             // 분할된 금지 시간으로 재생성
                             if (it->start_time < start) {
-                                new_reservations.push_back({ admin_id, room, to_string(day), it->start_time, start });
+                                new_reservations.push_back({ admin_id, room, day, it->start_time, start });
                             }
                             if (it->end_time > end) {
-                                new_reservations.push_back({ admin_id, room, to_string(day), end, it->end_time });
+                                new_reservations.push_back({ admin_id, room, day, end, it->end_time });
                             }
         
                             // 기존 금지 예약 삭제
@@ -613,7 +648,7 @@ void showAndEditClassroom(const string& admin_id) {
                 
             if (!roomFound) cout << ".!! Room not found\n";
         }
-        else if (input == 3) { // 6.3.2.3 ban reservation 예약 금지
+        else if (stoi(input) == 3) { // 6.3.2.3 ban reservation 예약 금지
             string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
@@ -689,8 +724,13 @@ int main() {
     while (true) {
         cout << "----Classroom Booking Program----\n";
         cout << "1. login\n2. accession\n3. exit\n>> ";
-        int sel; cin >> sel;
-        if (sel == 1) {
+        string sel;
+        cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+        getline(cin, sel);
+		if (checkIdx("menu", sel)) continue; // 인덱스 입력 유효성 검사
+        int idx = stoi(sel);
+
+        if (idx == 1) {
             User* user = nullptr;
             while (!user) user = login();
             if (user->is_admin) {
@@ -698,37 +738,46 @@ int main() {
                 // 관리자 기능 - 조수빈
                 while (true){
                     cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
-                    int choice; cin >> choice;
-                    if(choice == 1){
+                    string choice;
+                    cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+					getline(cin, choice);
+					if (checkIdx("menu", choice)) continue; // 인덱스 입력 유효성 검사
+					int idx_managerP = stoi(choice);
+                    if(idx_managerP == 1){
                         //예약 목록 출력 및 수정 함수 호출
                         adminReserveClassroom();
                     }
-                    else if (choice == 2){
+                    else if (idx_managerP == 2){
                         //강의실 상태 출력 및 수정 함수 호출
                         showAndEditClassroom(user -> id);
                     }
-                    else if (choice == 3){
+                    else if (idx_managerP == 3){
                         break;
                     }
-                    else{
-                        cout << ".!! Enter the index number in the mune.\n";
+                    //else{
+                    //    cout << ".!! Enter the index number in the mune.\n";
 
-                    }
+                    //}
                 }
             }
             else {
                 cout << "-- Main --\n";
                 while (true) {
                     cout << "1. classroom list\n2. reserve classroom\n3. cancel reservation\n4. logout\n>> ";
-                    int c; cin >> c;
-                    if (c == 1) {
+                    cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+                    string c;
+                    
+					getline(cin, c);
+					if (checkIdx("menu", c)) continue; // 인덱스 입력 유효성 검사
+					int idx_userP = stoi(c);
+                    if (idx_userP == 1) {
                         printClassroomList();
                         string room = InputClassroom();
                         printTimeTable(room);
                     }
-                    else if (c == 2) reserveClassroom(user->id);
-                    else if (c == 3) cancelReservation(user->id);
-                    else if (c == 4) {
+                    else if (idx_userP == 2) reserveClassroom(user->id);
+                    else if (idx_userP == 3) cancelReservation(user->id);
+                    else if (idx_userP == 4) {
                         if (logout()) break;
                     }
                 }
@@ -744,7 +793,7 @@ int main() {
         //    fout << id << "\t" << pw << "\t0\n";
         //    cout << "Registration complete\n";
         //}
-        else if (sel == 2) {
+        else if (idx == 2) {
             // 회원가입
             string id, pw;
             bool valid = false;
@@ -819,7 +868,7 @@ int main() {
                 cout << "Registration complete\n";
             }
         }
-        else if (sel == 3) {
+        else if (idx == 3) {
             // 종료 확인
             string confirm;
             cout << "If you want to quit this program, enter 'quit': ";
