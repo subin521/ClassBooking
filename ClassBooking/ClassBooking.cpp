@@ -10,6 +10,8 @@
 #include <string>  // 문자열 타입 사용
 #include <vector> // 동적 배열 벡터 사용
 #include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
+#include <limits> // numeric_limits 사용을 위해 추가
+#include <algorithm> // max 함수 사용을 위해 추가
 #include "util.hpp"
 #include <regex>
 #include <map>
@@ -314,20 +316,215 @@ void reserveClassroom(const string& user_id) {
     cout << ".!! This is not a time available for reservation\n";
 }
 
-//예약 목록 출력 및 수정 함수 호출
+// 관리자 프롬프트에서 예약 내역 조회하는 함수 - 조현승
+void reservation_check(){
+    ifstream reservation_file("reservation.txt");
+    map<string, string> day_map = {
+        {"1", "Mon"},
+        {"2", "Tue"},
+        {"3", "Wed"},
+        {"4", "Thu"},
+        {"5", "Fri"},
+    };
+    string line;
+    bool found = false;
+    while (getline(reservation_file, line)) {
+        stringstream ss(line);
+        string user_id, class_num_str, start_time, end_time, day_str;
+
+        getline(ss, user_id, '\t');
+        getline(ss, class_num_str, '\t');
+        getline(ss, start_time, '\t');
+        getline(ss, end_time, '\t');
+        getline(ss, day_str, '\t');
+
+        cout << user_id << " "
+             << class_num_str << " " 
+             << day_map[day_str] << " "
+             << start_time << " " << end_time << " " << endl;
+        
+        found = true; // 예약 정보를 찾았으므로 true로 설정
+    }
+    
+    reservation_file.close();
+
+    if (!found) {
+        cout << "No reservation history found." << endl;
+    }
+
+    cout << "\npress any key to continue..." << endl;
+    cin.get();
+
+}
+
+// 문자열의 앞이나 뒤에 공백이 있는지 확인 -조현승- 
+bool has_leading_or_trailing_space(const string& str) {
+    return (!str.empty() && isspace(str.front())) || (!str.empty() && isspace(str.back()));
+}
+
+// 사용자 ID가 유효한지 확인 (소문자, 숫자만 허용, 길이 제한) -조현승- 
+bool is_valid_user_id(const string& id) {
+    if (id.length() < 3 || id.length() > 20) {
+        return false;
+    }
+    for (char c : id) {
+        if (!islower(c) && !isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// user.txt 파일에서 해당 ID가 존재하는지 확인 -조현승- 
+bool does_user_exist(const string& user_id) {
+    ifstream user_file("user.txt");
+    bool user_exists = false;
+    if (user_file.is_open()) {
+        string line;
+        while (getline(user_file, line)) {
+            stringstream ss(line);
+            string file_user_id, password, is_admin;
+
+            getline(ss, file_user_id, '\t');
+            getline(ss, password, '\t');
+            getline(ss, is_admin, '\t');
+
+            if (file_user_id == user_id) {
+                user_exists = true;
+                break;
+            }
+        }
+        user_file.close();
+    } else {
+        cout << "Error: Could not open user.txt file." << endl;
+        return false;
+    }
+    return user_exists;
+}
+//관리자 프롬프트에서 예약 내역 삭제하는 함수 - 조현승
+void reservation_delete(){
+    string user_id_to_cancel;
+    bool valid_id = false;
+
+    // 유효한 사용자 ID를 입력받을 때까지 반복
+    while (!valid_id) {
+        cout << "Enter your ID: ";
+        getline(cin, user_id_to_cancel);
+
+        // 공백, 형식, 존재 여부 확인
+        if (has_leading_or_trailing_space(user_id_to_cancel) || 
+            !is_valid_user_id(user_id_to_cancel) || 
+            !does_user_exist(user_id_to_cancel)) {
+            cout << "!! Invalid or non-existent ID." << endl;
+        } else {
+            valid_id = true;
+        }
+    }
+
+    ifstream in_file("reservation.txt");
+    vector<string> user_reservations;
+
+    if (in_file.is_open()) {
+        string line;
+        int reservation_number = 1;
+
+        // 사용자 ID와 일치하는 예약 정보 출력
+        while (getline(in_file, line)) {
+            stringstream ss(line);
+            string user_id, class_num_str, start_time, end_time, day_str;
+
+            getline(ss, user_id, '\t');
+            getline(ss, class_num_str, '\t');
+            getline(ss, start_time, '\t');
+            getline(ss, end_time, '\t');
+            getline(ss, day_str, '\t');
+
+            if (user_id == user_id_to_cancel) {
+                cout << reservation_number++ << ". " << class_num_str << " ";
+                if (day_str == "1") cout << "Mon";
+                else if (day_str == "2") cout << "Tue";
+                else if (day_str == "3") cout << "Wed";
+                else if (day_str == "4") cout << "Thu";
+                else if (day_str == "5") cout << "Fri";
+                cout << " " << start_time << "-" << end_time << endl;
+
+                user_reservations.push_back(line);
+            }
+        }
+        in_file.close();
+
+        // 해당 ID의 예약이 없을 경우
+        if (user_reservations.empty()) {
+            cout << "No reservations found for this ID." << endl;
+        }
+
+        int cancel_choice;
+        bool valid_choice = false;
+
+        // 유효한 번호를 입력받을 때까지 반복
+        while (!valid_choice) {
+            cout << "Enter the reservation number you want to cancel: ";
+            cin >> cancel_choice;
+            cin.ignore(); // 버퍼 비우기
+
+            // 선택된 예약 삭제
+            if (cancel_choice >= 1 && cancel_choice <= user_reservations.size()) {
+                valid_choice = true;
+                string reservation_to_cancel = user_reservations[cancel_choice - 1];
+
+                ifstream read_file("reservation.txt");
+                ofstream write_file("reservation_temp.txt");
+                if (read_file.is_open() && write_file.is_open()) {
+                    string current_line;
+                    bool canceled = false;
+
+                    while (getline(read_file, current_line)) {
+                        if (current_line != reservation_to_cancel) {
+                            write_file << current_line << endl;
+                        } else {
+                            canceled = true;
+                        }
+                    }
+
+                    read_file.close();
+                    write_file.close();
+
+                    // 기존 파일 삭제 및 새 파일로 변경
+                    remove("reservation.txt");
+                    rename("reservation_temp.txt", "reservation.txt");
+
+                    if (canceled) {
+                        cout << "Reservation canceled successfully." << endl;
+                    } else {
+                        cout << "Error: Reservation not found." << endl;
+                    }
+
+                } else {
+                    cout << "Error opening reservation file for update." << endl;
+                }
+            } else {
+                cout << "!! Please enter a valid reservation number." << endl;
+            }
+        }
+    } else {
+        cout << "Error: Could not open reservation.txt file." << endl;
+    }
+}
+
+//예약 목록 출력 및 수정 함수 호출 
 void showListAndEditReservation() {
     while (true) {
-        cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
+        cout << "1. register reservation\n2. check reservation\n3. delete reservation\n>> ";
         int input; cin >> input;
 
         if(input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
-        
+
         }
         else if(input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
-            
+            reservation_check();
         }
         else if(input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
-        
+            reservation_delete();
         }
         else{
             cout << ".!! Enter the index number in the menu.\n";

@@ -33,12 +33,13 @@ int main() {
              << day_map[day_str] << " "
              << start_time << " " << end_time << " " << endl;
         
+        found = true; // ¿¹¾à Á¤º¸¸¦ Ã£¾ÒÀ¸¹Ç·Î true·Î ¼³Á¤
     }
     
     reservation_file.close();
 
     if (!found) {
-        cout << "í•´ë‹¹ IDë¡œ ì˜ˆì•½ëœ ì •ë³´ê°€ ì—†ìŠµë‹ˆë‹¤." << endl;
+        cout << "No reservation history found." << endl;
     }
 
     cout << "\npress any key to continue..." << endl;
