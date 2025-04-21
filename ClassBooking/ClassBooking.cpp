@@ -131,7 +131,7 @@ string removeWhitespace(const string& input) {
 // 인덱스 입력 유효성 검사
 bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
-    cout << "[DEBUG] cleaned: " << cleaned << endl;
+    //cout << "[DEBUG] cleaned: " << cleaned << endl;
     if (cleaned.length() == 1 && isdigit(cleaned[0])) {
         return false;  // 정상 입력
     }
@@ -272,7 +272,7 @@ void reserveClassroom(const string& user_id) {
         cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
         getline(cin, day);
         if (checkIdx("day", day)) continue;
-        else break;
+        break;
     }
 
     // --- 사용자 유형 확인 (admin 여부) ---
@@ -319,7 +319,7 @@ void reserveClassroom(const string& user_id) {
         }
 
         break;
-    }
+    };
 
     // --- 예약 충돌 확인 ---
     for (const auto& r : reservations) {
@@ -384,6 +384,13 @@ void reservation_check(){
     cin.get();
 
 }
+
+// 관리자가 강의실 예약하는 함수
+void adminReserveClassroom() {
+    string user_id = InputUser();
+    reserveClassroom(user_id);
+}
+
 
 // 문자열의 앞이나 뒤에 공백이 있는지 확인 -조현승- 
 bool has_leading_or_trailing_space(const string& str) {
@@ -543,19 +550,20 @@ void reservation_delete(){
 void showListAndEditReservation() {
     while (true) {
         cout << "1. register reservation\n2. check reservation\n3. delete reservation\n>> ";
-        int input; cin >> input;
+        string input; 
+		cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+		getline(cin, input);
 
-        if(input == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
-
+		if (checkIdx("menu", input)) continue;
+		int idx = stoi(input);
+        if(idx == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
+            adminReserveClassroom();
         }
-        else if(input == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
+        else if(idx == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
             reservation_check();
         }
-        else if(input == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
+        else if(idx == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
             reservation_delete();
-        }
-        else{
-            cout << ".!! Enter the index number in the menu.\n";
         }
     }
 }
@@ -681,11 +689,21 @@ void showAndEditClassroom(const string& admin_id) {
     }
 }
 
-// 관리자가 강의실 예약하는 함수
-void adminReserveClassroom() {
-    string user_id = InputUser();
-    reserveClassroom(user_id);
+// 관리자가 예약 내역을 출력하는 함수 
+void printAllReservations() {
+    for (const Reservation& r : reservations) {
+        cout << r.user_id << " "
+            << r.room << " "
+            << r.day << " "
+            << r.start_time << " "
+            << r.end_time << endl;
+    }
+    cout << "Press any key to continue...";
+    cin.ignore();
+    cin.get();
 }
+
+
 
 // 예약 취소 기능
 void cancelReservation(const string& user_id) {
@@ -745,7 +763,7 @@ int main() {
 					int idx_managerP = stoi(choice);
                     if(idx_managerP == 1){
                         //예약 목록 출력 및 수정 함수 호출
-                        adminReserveClassroom();
+                        showListAndEditReservation();
                     }
                     else if (idx_managerP == 2){
                         //강의실 상태 출력 및 수정 함수 호출
@@ -816,7 +834,7 @@ int main() {
                     }
                 }
                 if (!isValidId) {
-                    cout << ".!! Incorrect form: use only lowercase Engilish and number.\n";
+                    cout << ".!! Incorrect form: use only lowercase English and number." << endl;
                     continue;
                 }
 
