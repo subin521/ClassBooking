@@ -54,6 +54,10 @@ vector<string> times = {
     "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 };
 
+
+// reservation.txt 행 세는 변수
+int lineCount_r = 0;
+
 // 시간 겹치는지 확인하는 함수
 bool isTimeOverlap(const string& s1, const string& e1, const string& s2, const string& e2) {
     return !(e1 <= s2 || s1 >= e2);
@@ -92,6 +96,7 @@ bool loadReservations() {
     string id, room, start, end, day;
     while (fin >> id >> room >> start >> end >> day) {
         reservations.push_back({ id, room, day, start, end });
+        lineCount_r++;
     }
     return true;
 }
@@ -145,6 +150,15 @@ string trimWhitespace(const string& input) {
     return input.substr(start, end - start);
 }
 
+
+int printIdxErrorMessage(std::string callLocation) {
+    string errPhrase = ".";
+    if (callLocation == "day") errPhrase = "of the day of the week.";
+    else if (callLocation == "menu") errPhrase = "in the menu.";
+    cout << ".!! Enter the index number " << errPhrase << endl;
+    return 0;
+}
+
 // 인덱스 입력 유효성 검사
 bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
@@ -152,12 +166,14 @@ bool checkIdx(string callLocation, string& inputIdx) {
     if (cleaned.length() == 1 && isdigit(cleaned[0])) {
         return false;  // 정상 입력
     }
-    string errPhrase = ".";
-    if (callLocation == "day") errPhrase = "of the day of the week.";
-    else if (callLocation == "menu") errPhrase = "in the menu.";
-    cout << ".!! Enter the index number " << errPhrase << endl;
+    printIdxErrorMessage(callLocation);
+    //string errPhrase = ".";
+    //if (callLocation == "day") errPhrase = "of the day of the week.";
+    //else if (callLocation == "menu") errPhrase = "in the menu.";
+    //cout << ".!! Enter the index number " << errPhrase << endl;
     return true;  // 비정상 입력
 }
+
 
 string InputClassroom() {
     string input;
@@ -509,14 +525,23 @@ void reservation_delete(){
             cout << "No reservations found for this ID." << endl;
         }
 
-        int cancel_choice;
+        string c;
         bool valid_choice = false;
 
         // 유효한 번호를 입력받을 때까지 반복
         while (!valid_choice) {
             cout << "Enter the reservation number you want to cancel: ";
-            cin >> cancel_choice;
-            cin.ignore(); // 버퍼 비우기
+            //예약 인덱스 검사
+            cin >> c;
+            cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+            getline(cin, c);
+            if (checkIdx("menu", c)) continue; // 인덱스 입력 유효성 검사
+            int cancel_choice = stoi(c);
+            cout << reservation_number << endl;
+            if (cancel_choice < 1 || cancel_choice >reservation_number) {
+                printIdxErrorMessage("menu");
+                continue;
+            }
 
             // 선택된 예약 삭제
             if (cancel_choice >= 1 && cancel_choice <= user_reservations.size()) {
@@ -562,6 +587,7 @@ void reservation_delete(){
     }
 }
 
+bool cancelReservation(const string& user_id);  //오류방지용 선언
 //예약 목록 출력 및 수정 함수 호출 
 void showListAndEditReservation() {
     while (true) {
@@ -572,14 +598,33 @@ void showListAndEditReservation() {
 
 		if (checkIdx("menu", input)) continue;
 		int idx = stoi(input);
+        if (idx < 1 || idx >3) {    //인덱스가 유효값(1,2,3)이 아닐경우
+            printIdxErrorMessage("menu");
+            continue;
+        }
         if(idx == 1) { //예약자ID, 강의실 호수, 예약 시간을 입력 받고 등록
             adminReserveClassroom();
+            break;
         }
         else if(idx == 2) { //예약 내역 리스트 출력 6.2.1 reservation.txt
             reservation_check();
+            break;
         }
         else if(idx == 3) { //id를 입력받아 해당 사용자의 내약 내역 출력, 예약된 강의실 취소
-            reservation_delete();
+            string userId;
+            while (true) {  //정상 id입력까지 반복
+                cout << "ID: ";
+                getline(cin, userId);
+                if (!isExistUser(userId)) {
+                    cout << "ID doesn't exist." << endl;
+                    continue;
+                }
+                break;
+            }
+            while (true) {
+                if (cancelReservation(userId)) break;
+            }
+            break;
         }
     }
 }
@@ -600,13 +645,18 @@ void showAndEditClassroom(const string& admin_id) {
         //    continue;
         //}
         if (checkIdx("menu",input)) continue;
+        int idx = stoi(input);
+        if (idx < 1 || idx >3) {
+            printIdxErrorMessage("menu");
+            continue;
+        }
 
-        if (stoi(input) == 1) { // 6.3.2.1 check reservation
+        if (idx == 1) { // 6.3.2.1 check reservation
             printClassroomList();
             string room = InputClassroom();
             printTimeTable(room);
         }
-        else if (stoi(input) == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
+        else if (idx == 2) { // 6.3.2.2 accept reservation -> reservation.txt 예약 전체 허용 가능하게
             string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
@@ -672,7 +722,7 @@ void showAndEditClassroom(const string& admin_id) {
                 
             if (!roomFound) cout << ".!! Room not found\n";
         }
-        else if (stoi(input) == 3) { // 6.3.2.3 ban reservation 예약 금지
+        else if (idx == 3) { // 6.3.2.3 ban reservation 예약 금지
             string room = InputClassroom();
             bool roomFound = false;
             for (auto& c : classrooms) {
@@ -722,30 +772,46 @@ void printAllReservations() {
 
 
 // 예약 취소 기능
-void cancelReservation(const string& user_id) {
+bool cancelReservation(const string& user_id) {
+    bool flag = false;  //루프 돌리기
     vector<int> indices;
+    int reservation_number=0; //인덱스 유효 검사용
     for (int i = 0; i < reservations.size(); ++i) {
         if (reservations[i].user_id == user_id) {
             cout << indices.size() + 1 << ". " << reservations[i].room << " " << weekdays[stoi(reservations[i].day) - 1] << " " << reservations[i].start_time << "~" << reservations[i].end_time << endl;
             indices.push_back(i);
+            reservation_number++;
         }
     }
     if (indices.empty()) {
         cout << "No reservations to cancel\n";
-        return;
+        flag = true;
+        return flag;
     }
     cout << "Enter the number you want to cancel: ";
-    int choice; cin >> choice;
-    if (choice < 1 || choice > indices.size()) {
-        cout << ".!! Enter the index number in the menu.\n";
-        return;
+    string choice;
+    cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+    getline(cin, choice);
+    if (checkIdx("menu", choice)) return flag; // 인덱스 입력 유효성 검사
+    int idx_r = stoi(choice);
+    // cout << reservation_number << endl;
+    if (idx_r < 1 || idx_r > reservation_number) {
+        printIdxErrorMessage("menu");
+        return flag;
     }
-    reservations.erase(reservations.begin() + indices[choice - 1]);
+
+    //if (choice < 1 || choice > indices.size()) {      // '1sdf'에 대해 정상작동해버림
+    //    cout << ".!! Enter the index number in the menu.\n";
+    //    return;
+    //}
+    reservations.erase(reservations.begin() + indices[idx_r - 1]);
     ofstream fout("reservation.txt");
     for (auto& r : reservations) {
         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
     }
     cout << "Reservation canceled.\n";
+    flag = true;
+    return flag;
 }
 
 // 프로그램 시작
@@ -763,6 +829,10 @@ int main() {
         getline(cin, sel);
 		if (checkIdx("menu", sel)) continue; // 인덱스 입력 유효성 검사
         int idx = stoi(sel);
+        if (idx < 1 || idx >3) {
+            printIdxErrorMessage("menu");
+            continue;
+        }
 
         if (idx == 1) {
             User* user = nullptr;
@@ -777,15 +847,15 @@ int main() {
 					getline(cin, choice);
 					if (checkIdx("menu", choice)) continue; // 인덱스 입력 유효성 검사
 					int idx_managerP = stoi(choice);
-                    if(idx_managerP == 1){
-                        //예약 목록 출력 및 수정 함수 호출
-                        showListAndEditReservation();
+                    if (idx_managerP < 1 || idx_managerP >3) {
+                        printIdxErrorMessage("menu");
+                        continue;
                     }
-                    else if (idx_managerP == 2){
-                        //강의실 상태 출력 및 수정 함수 호출
-                        showAndEditClassroom(user -> id);
-                    }
+
+                    if(idx_managerP == 1) showListAndEditReservation(); //예약 목록 출력 및 수정 함수 호출
+                    else if (idx_managerP == 2) showAndEditClassroom(user->id); //강의실 상태 출력 및 수정 함수 호출
                     else if (idx_managerP == 3){
+                        logout();
                         break;
                     }
                     //else{
@@ -804,13 +874,21 @@ int main() {
 					getline(cin, c);
 					if (checkIdx("menu", c)) continue; // 인덱스 입력 유효성 검사
 					int idx_userP = stoi(c);
+                    if (idx_userP < 1 || idx_userP >4) {
+                        printIdxErrorMessage("menu");
+                        continue;
+                    }
                     if (idx_userP == 1) {
                         printClassroomList();
                         string room = InputClassroom();
                         printTimeTable(room);
                     }
                     else if (idx_userP == 2) reserveClassroom(user->id);
-                    else if (idx_userP == 3) cancelReservation(user->id);
+                    else if (idx_userP == 3) {
+                        while (!cancelReservation(user->id)) {
+                            cancelReservation(user->id);
+                        }
+                    }
                     else if (idx_userP == 4) {
                         if (logout()) break;
                     }
