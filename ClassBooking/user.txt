@@ -3,3 +3,6 @@ admin01	Admin@123	1
 user1	pass1	0
 amdin_id	admin_pw	0
 asdfew3wrw31	asriw3aork3223	0
+user	user1	0
+userd	pass1	0
+user1 23	user123	0
