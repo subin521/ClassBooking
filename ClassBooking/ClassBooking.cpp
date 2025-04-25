@@ -128,17 +128,33 @@ string removeWhitespace(const string& input) {
     return result;
 }
 
+// 양 끝 공백 제거 함수(강의실 입력)
+string trimWhitespace(const string& input) {
+    size_t start = 0;
+    size_t end = input.length();
+
+    // 앞쪽 공백 제거
+    while (start < end && (input[start] == ' ' || input[start] == '\t' || input[start] == '\n' || input[start] == '\r')) {
+        start++;
+    }
+    // 뒤쪽 공백 제거
+    while (end > start && (input[end - 1] == ' ' || input[end - 1] == '\t' || input[end - 1] == '\n' || input[end - 1] == '\r')) {
+        end--;
+    }
+
+    return input.substr(start, end - start);
+}
+
 // 인덱스 입력 유효성 검사
 bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
-    //cout << "[DEBUG] cleaned: " << cleaned << endl;
+    // cout << "[DEBUG] cleaned: " << cleaned << endl;
     if (cleaned.length() == 1 && isdigit(cleaned[0])) {
         return false;  // 정상 입력
     }
-    string errPhrase;
+    string errPhrase = ".";
     if (callLocation == "day") errPhrase = "of the day of the week.";
     else if (callLocation == "menu") errPhrase = "in the menu.";
-    else errPhrase = ".";
     cout << ".!! Enter the index number " << errPhrase << endl;
     return true;  // 비정상 입력
 }
@@ -148,7 +164,8 @@ string InputClassroom() {
 
     while (true) {
         cout << "classroom number: ";
-        cin >> input;
+        getline(cin, input);
+        input = trimWhitespace(input);
 
         // 포맷이 잘못됐거나 존재하지 않는 강의실이면 다시 입력
         if (!validateRoomNumber(input) || !isExistRoomNumber(input)) {
@@ -226,7 +243,6 @@ void printTimeTable(const string& room) {
         }
         cout << endl;
     }
-
     cout << "\npress any key to continue ...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
@@ -779,8 +795,8 @@ int main() {
                 }
             }
             else {
-                cout << "-- Main --\n";
                 while (true) {
+                    cout << "-- Main --\n";
                     cout << "1. classroom list\n2. reserve classroom\n3. cancel reservation\n4. logout\n>> ";
                     cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
                     string c;
