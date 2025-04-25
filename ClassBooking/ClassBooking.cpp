@@ -912,25 +912,39 @@ int main() {
 
             while (!valid) {
                 cout << "ID: ";
-                cin >> id;
+                getline(cin, id);  // 공백 포함 전체 입력 받기
+                bool isSpace = false;
 
                 // ID 유효성 검사 (길이, 문자 종류)
                 if (id.length() < 3 || id.length() > 20) {
                     cout << ".!! Incorrect form: ID must be between 3 and 20 characters.\n";
+                    isSpace = true;
+                    continue;
+                }
+                bool hasAlphaInId = false, hasDigitInId = false;
+
+                // 공백 먼저 체크
+                if (id.find(' ') != string::npos) {
+                    cout << ".!! Incorrect form: use Engilish and number. You can use special characters, but can't use space character." << endl;
                     continue;
                 }
 
+                // 문자 유효성 + 조합 검사
                 bool isValidId = true;
                 for (char c : id) {
                     if (!(islower(c) || isdigit(c))) {
                         isValidId = false;
                         break;
                     }
+                    if (islower(c)) hasAlphaInId = true;
+                    if (isdigit(c)) hasDigitInId = true;
                 }
-                if (!isValidId) {
+
+                if ((!isSpace)&&(!isValidId || !hasAlphaInId || !hasDigitInId)) {
                     cout << ".!! Incorrect form: use only lowercase English and number." << endl;
                     continue;
                 }
+
 
                 // 중복 체크
                 bool duplicated = false;
@@ -948,7 +962,7 @@ int main() {
 
                 // 비밀번호 입력
                 cout << "PW: ";
-                cin >> pw;
+                getline(cin, pw);  // ← 역시 getline
 
                 // 비밀번호 유효성 검사
                 if (pw.length() < 4 || pw.length() > 20) {
