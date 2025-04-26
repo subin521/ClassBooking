@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// °­ÀÇ½Ç ¹øÈ£ÀÇ Çü½ÄÀ» È®ÀÎÇÏ´Â ¸Þ¼­µå 
+// ï¿½ï¿½ï¿½Ç½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ 
 bool validateRoomNumber(const string& roomnumber) {
     if (roomnumber.length() != 3) {
         return false;
@@ -18,4 +18,3 @@ bool validateRoomNumber(const string& roomnumber) {
     }
     return true;
 }
-

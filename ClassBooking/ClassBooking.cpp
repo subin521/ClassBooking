@@ -72,26 +72,47 @@ bool isValidClassroomTime(const std::string& time) {
 
 // 강의실 불러오는 함수
 bool loadClassrooms() {
-    std::ifstream fin("classroom.txt");
+    ifstream fin("classroom.txt");
     if (!fin) {
-        std::cout << "Error: classroom.txt file not found.\n";
+        cout << "[Error] classroom.txt file not found.\n";
         return false;
     }
 
-    std::string room, start, end;
+    string room, start, end;
     int avail;
     int lineNum = 0;
 
     while (fin >> room >> avail >> start >> end) {
         ++lineNum;
 
+        if (room.empty()) {
+            cout << "[Error] Line " << lineNum << ": Missing classroom name.\n";
+            exit(1);
+        }
+
+        try {
+            int roomNum = stoi(room);
+            if (roomNum < 101 || roomNum > 999) {
+                cout << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 1909. (got " << roomNum << ")\n";
+                exit(1);
+            }
+        } catch (const exception& e) {
+            cout << "[Error] Line " << lineNum << ": Classroom name must be a valid number.\n";
+            exit(1);
+        }
+
         if (avail != 0 && avail != 1) {
-            std::cout << "Error: Invalid available field at line " << lineNum << ". (must be 0 or 1)\n";
+            cout << "[Error] Line " << lineNum << ": Availability must be 0 or 1. (got " << avail << ")\n";
             exit(1);
         }
 
         if (!isValidClassroomTime(start) || !isValidClassroomTime(end)) {
-            std::cout << "Error: Invalid time format at line " << lineNum << ". (must be HH:00)\n";
+            cout << "[Error] Line " << lineNum << ": Invalid time format (must be HH:00).\n";
+            exit(1);
+        }
+
+        if (start >= end) {
+            cout << "[Error] Line " << lineNum << ": Start time must be earlier than end time.\n";
             exit(1);
         }
 
