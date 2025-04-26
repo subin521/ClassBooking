@@ -476,14 +476,14 @@ void reservation_delete(){
 
     // 유효한 사용자 ID를 입력받을 때까지 반복
     while (!valid_id) {
-        cout << "Enter your ID: ";
+        cout << "ID: ";
         getline(cin, user_id_to_cancel);
 
         // 공백, 형식, 존재 여부 확인
         if (has_leading_or_trailing_space(user_id_to_cancel) || 
             !is_valid_user_id(user_id_to_cancel) || 
             !does_user_exist(user_id_to_cancel)) {
-            cout << "!! Invalid or non-existent ID." << endl;
+            cout << ".!! ID doesn’t exist." << endl;
         } else {
             valid_id = true;
         }
@@ -580,7 +580,7 @@ void reservation_delete(){
                     cout << "Error opening reservation file for update." << endl;
                 }
             } else {
-                cout << "!! Please enter a valid reservation number." << endl;
+                cout << ".!! Enter the index number in the menu." << endl;
             }
         }
     } else {
