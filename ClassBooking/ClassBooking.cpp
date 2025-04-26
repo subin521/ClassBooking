@@ -74,7 +74,7 @@ bool isValidClassroomTime(const std::string& time) {
 bool loadClassrooms() {
     ifstream fin("classroom.txt");
     if (!fin) {
-        cout << "[Error] classroom.txt file not found.\n";
+        cerr << "[Error] classroom.txt file not found.\n";
         return false;
     }
 
@@ -86,33 +86,33 @@ bool loadClassrooms() {
         ++lineNum;
 
         if (room.empty()) {
-            cout << "[Error] Line " << lineNum << ": Missing classroom name.\n";
+            cerr << "[Error] Line " << lineNum << ": Missing classroom name.\n";
             exit(1);
         }
 
         try {
             int roomNum = stoi(room);
-            if (roomNum < 101 || roomNum > 999) {
-                cout << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 1909. (got " << roomNum << ")\n";
+            if (roomNum < 101 || roomNum > 1909) {
+                cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 999. (got " << roomNum << ")\n";
                 exit(1);
             }
         } catch (const exception& e) {
-            cout << "[Error] Line " << lineNum << ": Classroom name must be a valid number.\n";
+            cerr << "[Error] Line " << lineNum << ": Classroom name must be a valid number.\n";
             exit(1);
         }
 
         if (avail != 0 && avail != 1) {
-            cout << "[Error] Line " << lineNum << ": Availability must be 0 or 1. (got " << avail << ")\n";
+            cerr << "[Error] Line " << lineNum << ": Availability must be 0 or 1. (got " << avail << ")\n";
             exit(1);
         }
 
         if (!isValidClassroomTime(start) || !isValidClassroomTime(end)) {
-            cout << "[Error] Line " << lineNum << ": Invalid time format (must be HH:00).\n";
+            cerr << "[Error] Line " << lineNum << ": Invalid time format (must be HH:00).\n";
             exit(1);
         }
 
         if (start >= end) {
-            cout << "[Error] Line " << lineNum << ": Start time must be earlier than end time.\n";
+            cerr << "[Error] Line " << lineNum << ": Start time must be earlier than end time.\n";
             exit(1);
         }
 
@@ -130,7 +130,7 @@ bool isValidPassword(const std::string& pw);
 bool loadUsers() {
     ifstream fin("user.txt");
     if (!fin) {
-        cout << "Error: user.txt file not found." << endl;
+        cerr << "[Error] user.txt file not found.\n";
         return false;
     }
 
@@ -139,19 +139,19 @@ bool loadUsers() {
     map<string, bool> id_check;
 
     while (fin >> id >> pw >> admin) {
-        
+
         if (!isValidID(id)) {
-            cout << "Error: Invalid ID format detected in user.txt -> " << id << endl;
+            cerr << "[Error] Invalid ID format detected in user.txt -> " << id << endl;
             exit(1);
         }
-        
+
         if (!isValidPassword(pw)) {
-            cout << "Error: Invalid Password format detected in user.txt -> " << pw << endl;
+            cerr << "[Error] Invalid Password format detected in user.txt -> " << pw << endl;
             exit(1);
         }
-        
+
         if (id_check[id]) {
-            cout << "Error: Duplicate ID detected in user.txt -> " << id << endl;
+            cerr << "[Error] Duplicate ID detected in user.txt -> " << id << endl;
             exit(1);
         }
         id_check[id] = true;
@@ -160,18 +160,58 @@ bool loadUsers() {
         users.push_back({ id, pw, isAdmin });
     }
 
+    fin.close();
     return true;
 }
+
+bool isExistUser(const string& input);
+bool isExistRoomNumber(const string& input);
+bool isValidClassroomTime(const string& time);
 
 // 예약 불러오는 함수
 bool loadReservations() {
     ifstream fin("reservation.txt");
-    if (!fin) return false;
+    if (!fin) {
+        cerr << "[Error] reservation.txt file not found.\n";
+        return false;
+    }
+
     string id, room, start, end, day;
+    int lineNum = 0;
+
     while (fin >> id >> room >> start >> end >> day) {
+        ++lineNum;
+
+        if (!isExistUser(id)) {
+            cerr << "[Error] Line " << lineNum << ": User ID not found -> " << id << endl;
+            exit(1);
+        }
+
+        if (!isExistRoomNumber(room)) {
+            cerr << "[Error] Line " << lineNum << ": Classroom not found -> " << room << endl;
+            exit(1);
+        }
+
+        if (!isValidClassroomTime(start) || !isValidClassroomTime(end)) {
+            cerr << "[Error] Line " << lineNum << ": Invalid time format (must be HH:00).\n";
+            exit(1);
+        }
+
+        if (start >= end) {
+            cerr << "[Error] Line " << lineNum << ": Start time must be earlier than end time.\n";
+            exit(1);
+        }
+
+        if (day != "1" && day != "2" && day != "3" && day != "4" && day != "5") {
+            cerr << "[Error] Line " << lineNum << ": Invalid day value (must be 1~5). (got " << day << ")\n";
+            exit(1);
+        }
+
         reservations.push_back({ id, room, day, start, end });
         lineCount_r++;
     }
+
+    fin.close();
     return true;
 }
 
