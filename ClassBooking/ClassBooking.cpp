@@ -64,29 +64,81 @@ bool isTimeOverlap(const string& s1, const string& e1, const string& s2, const s
     return !(e1 <= s2 || s1 >= e2);
 }
 
+// loadClassrooms에 필요한 시간 검사 함수
+bool isValidClassroomTime(const std::string& time) {
+    std::regex pattern("^([01][0-9]|2[0-3]):00$");
+    return std::regex_match(time, pattern);
+}
+
 // 강의실 불러오는 함수
 bool loadClassrooms() {
-    ifstream fin("classroom.txt");
-    if (!fin) return false;
-    string room, start, end;
-    int avail;
-    while (fin >> room >> avail >> start >> end) {
-        bool available_flag = (avail != 0);  // int을 bool로 바꿈
-        classrooms.push_back({ room, available_flag, start, end });
+    std::ifstream fin("classroom.txt");
+    if (!fin) {
+        std::cout << "Error: classroom.txt file not found.\n";
+        return false;
     }
+
+    std::string room, start, end;
+    int avail;
+    int lineNum = 0;
+
+    while (fin >> room >> avail >> start >> end) {
+        ++lineNum;
+
+        if (avail != 0 && avail != 1) {
+            std::cout << "Error: Invalid available field at line " << lineNum << ". (must be 0 or 1)\n";
+            exit(1);
+        }
+
+        if (!isValidClassroomTime(start) || !isValidClassroomTime(end)) {
+            std::cout << "Error: Invalid time format at line " << lineNum << ". (must be HH:00)\n";
+            exit(1);
+        }
+
+        classrooms.push_back({ room, avail != 0, start, end });
+    }
+
+    fin.close();
     return true;
 }
+
+bool isValidID(const std::string& id);
+bool isValidPassword(const std::string& pw);
 
 // 유저 불러오는 함수
 bool loadUsers() {
     ifstream fin("user.txt");
-    if (!fin) return false;
+    if (!fin) {
+        cout << "Error: user.txt file not found." << endl;
+        return false;
+    }
+
     string id, pw;
     int admin;
+    map<string, bool> id_check;
+
     while (fin >> id >> pw >> admin) {
+        
+        if (!isValidID(id)) {
+            cout << "Error: Invalid ID format detected in user.txt -> " << id << endl;
+            exit(1);
+        }
+        
+        if (!isValidPassword(pw)) {
+            cout << "Error: Invalid Password format detected in user.txt -> " << pw << endl;
+            exit(1);
+        }
+        
+        if (id_check[id]) {
+            cout << "Error: Duplicate ID detected in user.txt -> " << id << endl;
+            exit(1);
+        }
+        id_check[id] = true;
+
         bool isAdmin = (admin != 0);
         users.push_back({ id, pw, isAdmin });
     }
+
     return true;
 }
 
@@ -829,7 +881,7 @@ bool isValidTime(const string& time) {
 }
 
 bool isValidID(const string& id) {
-    const string idPattern = "^[a-z0-9]{3,20}$";
+    const string idPattern = "^(?=.*[a-z])(?=.*[0-9])[a-z0-9]{3,20}$";
     return regex_match(id, regex(idPattern));
 }
 
