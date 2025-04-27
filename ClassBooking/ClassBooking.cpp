@@ -272,7 +272,6 @@ bool loadReservations()
     if (fin.tellg() == 0)
     {
         fin.close();
-        cerr << "[Warning] reservation.txt is empty.\n";
         return true;
     }
     fin.seekg(0);
@@ -1667,11 +1666,11 @@ int main()
                         reserveClassroom(user->id);
                     else if (idx_userP == 3)
                     {
-                        while (!cancelReservation(user->id))
-                        {
-                            cancelReservation(user->id);
+                        bool success = false;
+                        while (!success){
+                            success = cancelReservation(user->id);
                         }
-                    }
+                    } 
                     else if (idx_userP == 4)
                     {
                         if (logout())
