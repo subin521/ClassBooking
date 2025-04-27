@@ -165,14 +165,17 @@ bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
     // cout << "[DEBUG] cleaned: " << cleaned << endl;
     if (cleaned.length() == 1 && isdigit(cleaned[0])) {
-        return false;  // 정상 입력
+        int num = cleaned[0] - '0'; // 문자를 정수로 변환
+        if (num >= 1 && num <= 5) {
+            return false; // 정상 입력 (1~5 범위 내의 단일 숫자)
+        } else {
+            printIdxErrorMessage(callLocation); // 범위 벗어남 오류 메시지 출력
+            return true; // 비정상 입력
+        }
+    } else {
+        printIdxErrorMessage(callLocation); // 형식 오류 메시지 출력
+        return true; // 비정상 입력
     }
-    printIdxErrorMessage(callLocation);
-    //string errPhrase = ".";
-    //if (callLocation == "day") errPhrase = "of the day of the week.";
-    //else if (callLocation == "menu") errPhrase = "in the menu.";
-    //cout << ".!! Enter the index number " << errPhrase << endl;
-    return true;  // 비정상 입력
 }
 
 
@@ -302,7 +305,8 @@ void reserveClassroom(const string& user_id) {
     // --- 요일 입력 유효성 검사 ---
     while (true) {
         cout << "day (1~5): ";
-        cin.clear();while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+        cin.clear();
+        while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
         getline(cin, day);
         if (checkIdx("day", day)) continue;
         break;
