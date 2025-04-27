@@ -79,7 +79,8 @@ bool isValidClassroomTime(const std::string &time)
 // 강의실 불러오는 함수
 bool loadClassrooms()
 {
-    ifstream fin("classroom.txt");
+    //ifstream fin("classroom.txt");    //.cpp용
+    ifstream fin("../../ClassBooking/ClassBooking/classroom.txt");    // release .exe용
     if (!fin)
     {
         cerr << "[Error] classroom.txt file not found.\n";
@@ -146,7 +147,8 @@ bool isValidPassword(const std::string &pw);
 // 유저 불러오는 함수
 bool loadUsers()
 {
-    ifstream fin("user.txt");
+    //ifstream fin("user.txt"); // .cpp용
+    ifstream fin("../../Classbooking/ClassBooking/user.txt");     // release .exe용
     if (!fin)
     {
         cerr << "[Error] user.txt file not found.\n";
@@ -194,7 +196,8 @@ bool isValidClassroomTime(const string &time);
 // 예약 불러오는 함수
 bool loadReservations()
 {
-    ifstream fin("reservation.txt");
+    //ifstream fin("reservation.txt");  //.cpp용
+    ifstream fin("../../Classbooking/ClassBooking/reservation.txt");  // release .exe용
     if (!fin)
     {
         cerr << "[Error] reservation.txt file not found.\n";
