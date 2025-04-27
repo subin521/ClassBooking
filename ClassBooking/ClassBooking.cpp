@@ -79,13 +79,61 @@ bool isValidClassroomTime(const std::string &time)
 // 강의실 불러오는 함수
 bool loadClassrooms()
 {
-    ifstream fin("classroom.txt");    //.cpp용
-    //ifstream fin("../../ClassBooking/ClassBooking/classroom.txt");    // release .exe용
+    ifstream fin("classroom.txt");
+    //ifstream fin("../../ClassBooking/ClassBooking/classroom.txt"); // release .exe용
+
+    // 파일이 없는 경우
     if (!fin)
     {
-        cerr << "[Error] classroom.txt file not found.\n";
-        return false;
+        cerr << "[Warning] classroom.txt file not found. Creating default classrooms...\n";
+        ofstream fout("classroom.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create classroom.txt.\n";
+            exit(1);
+        }
+        fout << "301 1 09:00 18:00\n"
+             << "302 1 09:00 18:00\n"
+             << "401 1 09:00 18:00\n"
+             << "402 1 09:00 18:00\n"
+             << "501 1 09:00 18:00\n"
+             << "502 1 09:00 18:00\n"
+             << "601 1 09:00 18:00\n"
+             << "602 1 09:00 18:00\n";
+        fout.close();
+        fin.open("classroom.txt");
+        if (!fin) {
+            cerr << "[Error] Failed to open classroom.txt after creation.\n";
+            exit(1);
+        }
     }
+
+    // 파일이 존재하지만 비어있는 경우
+    fin.seekg(0, ios::end);
+    if (fin.tellg() == 0)
+    {
+        fin.close();
+        cerr << "[Warning] classroom.txt is empty. Inserting default classrooms...\n";
+        ofstream fout("classroom.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to recreate classroom.txt.\n";
+            exit(1);
+        }
+        fout << "301 1 09:00 18:00\n"
+             << "302 1 09:00 18:00\n"
+             << "401 1 09:00 18:00\n"
+             << "402 1 09:00 18:00\n"
+             << "501 1 09:00 18:00\n"
+             << "502 1 09:00 18:00\n"
+             << "601 1 09:00 18:00\n"
+             << "602 1 09:00 18:00\n";
+        fout.close();
+        fin.open("classroom.txt");
+        if (!fin) {
+            cerr << "[Error] Failed to open classroom.txt after recreating.\n";
+            exit(1);
+        }
+    }
+    fin.seekg(0);
 
     string room, start, end;
     int avail;
@@ -106,11 +154,11 @@ bool loadClassrooms()
             int roomNum = stoi(room);
             if (roomNum < 101 || roomNum > 1909)
             {
-                cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 999. (got " << roomNum << ")\n";
+                cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 1909. (got " << roomNum << ")\n";
                 exit(1);
             }
         }
-        catch (const exception &e)
+        catch (const exception &)
         {
             cerr << "[Error] Line " << lineNum << ": Classroom name must be a valid number.\n";
             exit(1);
@@ -134,7 +182,7 @@ bool loadClassrooms()
             exit(1);
         }
 
-        classrooms.push_back({room, avail != 0, start, end});
+        classrooms.push_back({ room, avail != 0, start, end });
     }
 
     fin.close();
@@ -148,11 +196,19 @@ bool isValidPassword(const std::string &pw);
 bool loadUsers()
 {
     ifstream fin("user.txt"); // .cpp용
-    //ifstream fin("../../Classbooking/ClassBooking/user.txt");     // release .exe용
+
+    //ifstream fin("../../Classbooking/ClassBooking/user.txt"); // release .exe용
+
     if (!fin)
     {
-        cerr << "[Error] user.txt file not found.\n";
-        return false;
+        cerr << "[Warning] user.txt file not found. Creating empty user.txt...\n";
+        ofstream fout("user.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create user.txt\n";
+            exit(1);
+        }
+        fout.close();
+        // 파일 만들어주고 진행
     }
 
     string id, pw;
@@ -161,7 +217,6 @@ bool loadUsers()
 
     while (fin >> id >> pw >> admin)
     {
-
         if (!isValidID(id))
         {
             cerr << "[Error] Invalid ID format detected in user.txt -> " << id << endl;
@@ -182,10 +237,12 @@ bool loadUsers()
         id_check[id] = true;
 
         bool isAdmin = (admin != 0);
-        users.push_back({id, pw, isAdmin});
+        users.push_back({ id, pw, isAdmin });
     }
-
     fin.close();
+
+    users.push_back({ "admin1", "admin123", true });
+
     return true;
 }
 
@@ -196,13 +253,29 @@ bool isValidClassroomTime(const string &time);
 // 예약 불러오는 함수
 bool loadReservations()
 {
-    ifstream fin("reservation.txt");  //.cpp용
-    //ifstream fin("../../Classbooking/ClassBooking/reservation.txt");  // release .exe용
+    ifstream fin("reservation.txt"); // .cpp용
+    //ifstream fin("../../Classbooking/ClassBooking/reservation.txt"); // release .exe용
+
     if (!fin)
     {
-        cerr << "[Error] reservation.txt file not found.\n";
-        return false;
+        cerr << "[Warning] reservation.txt file not found. Creating empty reservation.txt...\n";
+        ofstream fout("reservation.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create reservation.txt.\n";
+            exit(1);
+        }
+        fout.close();
+        return true; // 빈 파일 만들고 정상 진행
     }
+
+    fin.seekg(0, ios::end);
+    if (fin.tellg() == 0)
+    {
+        fin.close();
+        cerr << "[Warning] reservation.txt is empty.\n";
+        return true;
+    }
+    fin.seekg(0);
 
     string id, room, start, end, day;
     int lineNum = 0;
@@ -241,7 +314,7 @@ bool loadReservations()
             exit(1);
         }
 
-        reservations.push_back({id, room, day, start, end});
+        reservations.push_back({ id, room, day, start, end });
         lineCount_r++;
     }
 
@@ -322,20 +395,21 @@ int printIdxErrorMessage(std::string callLocation)
 }
 
 // 인덱스 입력 유효성 검사
-bool checkIdx(string callLocation, string &inputIdx)
-{
+bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
     // cout << "[DEBUG] cleaned: " << cleaned << endl;
-    if (cleaned.length() == 1 && isdigit(cleaned[0]))
-    {
-        return false; // 정상 입력
+    if (cleaned.length() == 1 && isdigit(cleaned[0])) {
+        int num = cleaned[0] - '0'; // 문자를 정수로 변환
+        if (num >= 1 && num <= 5) {
+            return false; // 정상 입력 (1~5 범위 내의 단일 숫자)
+        } else {
+            printIdxErrorMessage(callLocation); // 범위 벗어남 오류 메시지 출력
+            return true; // 비정상 입력
+        }
+    } else {
+        printIdxErrorMessage(callLocation); // 형식 오류 메시지 출력
+        return true; // 비정상 입력
     }
-    printIdxErrorMessage(callLocation);
-    // string errPhrase = ".";
-    // if (callLocation == "day") errPhrase = "of the day of the week.";
-    // else if (callLocation == "menu") errPhrase = "in the menu.";
-    // cout << ".!! Enter the index number " << errPhrase << endl;
-    return true; // 비정상 입력
 }
 
 string InputClassroom()
@@ -484,46 +558,38 @@ bool logout()
     return logout();
 }
 
-void reserveClassroom(const string &user_id)
-{
+void reserveClassroom(const string& user_id) {
     string day, start, end;
     string room = InputClassroom();
 
     // --- 요일 입력 유효성 검사 ---
-    while (true)
-    {
+    while (true) {
         cout << "day (1~5): ";
         cin.clear();
-        while (cin.peek() == '\n')
-            cin.ignore(); // 개행만 남은 버퍼 날리기
+        while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
         getline(cin, day);
-        if (checkIdx("day", day))
-            continue;
+        if (checkIdx("day", day)) continue;
         break;
     }
 
     // --- 사용자 유형 확인 (admin 여부) ---
     bool is_admin = false;
-    for (const auto &u : users)
-    {
-        if (u.id == user_id)
-        {
+    for (const auto& u : users) {
+        if (u.id == user_id) {
             is_admin = u.is_admin;
             break;
         }
     }
 
     // --- 시간 입력 유효성 검사 ---
-    while (true)
-    {
+    while (true) {
         cout << "start time (HH:MM): ";
         cin >> start;
         cout << "end time (HH:MM): ";
         cin >> end;
 
         regex pattern("^([01]?[0-9]|2[0-3]):00$");
-        if (!regex_match(start, pattern) || !regex_match(end, pattern))
-        {
+        if (!regex_match(start, pattern) || !regex_match(end, pattern)) {
             cout << ".!! Incorrect form: an example of correct input is '14:00'.\n";
             continue;
         }
@@ -531,47 +597,40 @@ void reserveClassroom(const string &user_id)
         int sh = stoi(start.substr(0, 2));
         int eh = stoi(end.substr(0, 2));
 
-        if (sh < 9 || sh > 17)
-        {
+        if (sh < 9 || sh > 17) {
             cout << ".!! Incorrect form: start must be between 09:00 and 17:00.\n";
             continue;
         }
-        if (eh < 10 || eh > 18)
-        {
+        if (eh < 10 || eh > 18) {
             cout << ".!! Incorrect form: end must be between 10:00 and 18:00.\n";
             continue;
         }
-        if (sh >= eh)
-        {
+        if (sh >= eh) {
             cout << ".!! Start time must be earlier than end time.\n";
             continue;
         }
 
-        if (!is_admin && eh - sh != 1)
+        if (!is_admin && eh - sh >3)
         {
-            cout << ".!! General users can only reserve exactly 1 hour.\n";
+            cout << ".!! You exceed the maximum reservation time.\n";
             continue;
         }
 
         break;
-    }
+    };
 
     // --- 예약 충돌 확인 ---
-    for (const auto &r : reservations)
-    {
-        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
-        {
+    for (const auto& r : reservations) {
+        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
             cout << ".!! Already reserved time\n";
             return;
         }
     }
 
     // --- 강의실 예약 가능 시간 확인 ---
-    for (const auto &c : classrooms)
-    {
-        if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end)
-        {
-            reservations.push_back({user_id, room, day, start, end});
+    for (const auto& c : classrooms) {
+        if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
+            reservations.push_back({ user_id, room, day, start, end });
             ofstream fout("reservation.txt", ios::app);
             fout << user_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
             fout.close();
