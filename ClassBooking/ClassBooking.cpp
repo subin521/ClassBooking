@@ -529,9 +529,9 @@ User *login()
 {
     string id, pw;
     cout << "ID: ";
-    cin >> id;
+    getline(cin, id);
     cout << "PW: ";
-    cin >> pw;
+    getline(cin, pw);
     for (auto &u : users)
     {
         if (u.id == id && u.password == pw)
