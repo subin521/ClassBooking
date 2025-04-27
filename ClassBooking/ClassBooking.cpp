@@ -566,7 +566,7 @@ void reserveClassroom(const string& user_id) {
 
     // --- 요일 입력 유효성 검사 ---
     while (true) {
-        cout << "day (1~5): ";
+        cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
         cin.clear();
         while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
         getline(cin, day);
