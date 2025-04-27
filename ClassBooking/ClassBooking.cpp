@@ -79,13 +79,61 @@ bool isValidClassroomTime(const std::string &time)
 // 강의실 불러오는 함수
 bool loadClassrooms()
 {
-    ifstream fin("classroom.txt");    //.cpp용
-    //ifstream fin("../../ClassBooking/ClassBooking/classroom.txt");    // release .exe용
+    ifstream fin("classroom.txt");
+    //ifstream fin("../../ClassBooking/ClassBooking/classroom.txt"); // release .exe용
+
+    // 파일이 없는 경우
     if (!fin)
     {
-        cerr << "[Error] classroom.txt file not found.\n";
-        return false;
+        cerr << "[Warning] classroom.txt file not found. Creating default classrooms...\n";
+        ofstream fout("classroom.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create classroom.txt.\n";
+            exit(1);
+        }
+        fout << "301 1 09:00 18:00\n"
+             << "302 1 09:00 18:00\n"
+             << "401 1 09:00 18:00\n"
+             << "402 1 09:00 18:00\n"
+             << "501 1 09:00 18:00\n"
+             << "502 1 09:00 18:00\n"
+             << "601 1 09:00 18:00\n"
+             << "602 1 09:00 18:00\n";
+        fout.close();
+        fin.open("classroom.txt");
+        if (!fin) {
+            cerr << "[Error] Failed to open classroom.txt after creation.\n";
+            exit(1);
+        }
     }
+
+    // 파일이 존재하지만 비어있는 경우
+    fin.seekg(0, ios::end);
+    if (fin.tellg() == 0)
+    {
+        fin.close();
+        cerr << "[Warning] classroom.txt is empty. Inserting default classrooms...\n";
+        ofstream fout("classroom.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to recreate classroom.txt.\n";
+            exit(1);
+        }
+        fout << "301 1 09:00 18:00\n"
+             << "302 1 09:00 18:00\n"
+             << "401 1 09:00 18:00\n"
+             << "402 1 09:00 18:00\n"
+             << "501 1 09:00 18:00\n"
+             << "502 1 09:00 18:00\n"
+             << "601 1 09:00 18:00\n"
+             << "602 1 09:00 18:00\n";
+        fout.close();
+        fin.open("classroom.txt");
+        if (!fin) {
+            cerr << "[Error] Failed to open classroom.txt after recreating.\n";
+            exit(1);
+        }
+    }
+    fin.seekg(0);
 
     string room, start, end;
     int avail;
@@ -106,11 +154,11 @@ bool loadClassrooms()
             int roomNum = stoi(room);
             if (roomNum < 101 || roomNum > 1909)
             {
-                cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 999. (got " << roomNum << ")\n";
+                cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 1909. (got " << roomNum << ")\n";
                 exit(1);
             }
         }
-        catch (const exception &e)
+        catch (const exception &)
         {
             cerr << "[Error] Line " << lineNum << ": Classroom name must be a valid number.\n";
             exit(1);
@@ -134,7 +182,7 @@ bool loadClassrooms()
             exit(1);
         }
 
-        classrooms.push_back({room, avail != 0, start, end});
+        classrooms.push_back({ room, avail != 0, start, end });
     }
 
     fin.close();
@@ -149,10 +197,17 @@ bool loadUsers()
 {
     ifstream fin("user.txt"); // .cpp용
     //ifstream fin("../../Classbooking/ClassBooking/user.txt");     // release .exe용
+
     if (!fin)
     {
-        cerr << "[Error] user.txt file not found.\n";
-        return false;
+        cerr << "[Warning] user.txt file not found. Creating empty user.txt...\n";
+        ofstream fout("user.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create user.txt\n";
+            exit(1);
+        }
+        fout.close();
+        return true;
     }
 
     string id, pw;
@@ -161,7 +216,6 @@ bool loadUsers()
 
     while (fin >> id >> pw >> admin)
     {
-
         if (!isValidID(id))
         {
             cerr << "[Error] Invalid ID format detected in user.txt -> " << id << endl;
@@ -179,6 +233,7 @@ bool loadUsers()
             cerr << "[Error] Duplicate ID detected in user.txt -> " << id << endl;
             exit(1);
         }
+
         id_check[id] = true;
 
         bool isAdmin = (admin != 0);
@@ -196,13 +251,29 @@ bool isValidClassroomTime(const string &time);
 // 예약 불러오는 함수
 bool loadReservations()
 {
-    ifstream fin("reservation.txt");  //.cpp용
-    //ifstream fin("../../Classbooking/ClassBooking/reservation.txt");  // release .exe용
+    ifstream fin("reservation.txt"); // .cpp용
+    //ifstream fin("../../Classbooking/ClassBooking/reservation.txt"); // release .exe용
+
     if (!fin)
     {
-        cerr << "[Error] reservation.txt file not found.\n";
-        return false;
+        cerr << "[Warning] reservation.txt file not found. Creating empty reservation.txt...\n";
+        ofstream fout("reservation.txt");
+        if (!fout) {
+            cerr << "[Error] Failed to create reservation.txt.\n";
+            exit(1);
+        }
+        fout.close();
+        return true; // 빈 파일 만들고 정상 진행
     }
+
+    fin.seekg(0, ios::end);
+    if (fin.tellg() == 0)
+    {
+        fin.close();
+        cerr << "[Warning] reservation.txt is empty.\n";
+        return true;
+    }
+    fin.seekg(0);
 
     string id, room, start, end, day;
     int lineNum = 0;
@@ -241,7 +312,7 @@ bool loadReservations()
             exit(1);
         }
 
-        reservations.push_back({id, room, day, start, end});
+        reservations.push_back({ id, room, day, start, end });
         lineCount_r++;
     }
 
