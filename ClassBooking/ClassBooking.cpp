@@ -627,22 +627,22 @@ void reserveClassroom(const string& user_id) {
         break;
     }
 
-    // --- 하루 총합 3시간(180분) 초과 여부 검사 ---
+    // --- 하루 총합 3시간 초과 여부 검사 ---
     int totalReservedMinutes = 0;
     for (const auto& r : reservations) {
-        if (r.user_id == user_id && r.day == day) {
-            int startMin = stoi(r.start_time.substr(0,2)) * 60;
-            int endMin = stoi(r.end_time.substr(0,2)) * 60;
-            totalReservedMinutes += (endMin - startMin);
+        if (r.user_id == user_id) {
+            int startHour = stoi(r.start_time.substr(0,2));
+            int endHour = stoi(r.end_time.substr(0,2));
+            totalReservedMinutes += (endHour - startHour);
         }
     }
 
-    int newStartMin = stoi(start.substr(0,2)) * 60;
-    int newEndMin = stoi(end.substr(0,2)) * 60;
-    int newDuration = newEndMin - newStartMin;
-
-    if (!is_admin && (totalReservedMinutes + newDuration > 180)) {
-        cout << ".!! Reservation exceeds daily 3-hour limit.\n";
+    int newStartHour = stoi(start.substr(0,2));
+    int newEndHour = stoi(end.substr(0,2));
+    int newDuration = newEndHour - newStartHour;
+    //cout << newDuration << ", " << totalReservedMinutes << endl;
+    if (!is_admin && (totalReservedMinutes + newDuration > 3)) {
+        cout << ".!! You exceeded the maximum reservation time.\n";
         return;
     }
 
