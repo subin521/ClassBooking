@@ -414,24 +414,24 @@ bool checkIdx(string callLocation, string& inputIdx) {
 }
 
 
-string InputClassroom()
-{
+string trim(const string& str);
+string InputClassroom() {
     string input;
 
-    while (true)
-    {
+    while (true) {
         cout << "classroom number: ";
-        getline(cin, input);
-        input = trimWhitespace(input);
+        
+        cin.clear();
+        while (cin.peek() == '\n') cin.ignore();
 
-        // 포맷이 잘못됐거나 존재하지 않는 강의실이면 다시 입력
-        if (!validateRoomNumber(input) || !isExistRoomNumber(input))
-        {
+        getline(cin, input);
+
+        input = trim(input);
+
+        if (!validateRoomNumber(input) || !isExistRoomNumber(input)) {
             cout << ".!! The classroom you entered doesn't exist. Please try again.\n";
-        }
-        else
-        {
-            return input; // 유효하면 반환
+        } else {
+            return input;
         }
     }
 }
