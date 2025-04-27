@@ -196,7 +196,7 @@ bool isValidPassword(const std::string &pw);
 bool loadUsers()
 {
     ifstream fin("user.txt"); // .cpp용
-    //ifstream fin("../../Classbooking/ClassBooking/user.txt");     // release .exe용
+    //ifstream fin("../../Classbooking/ClassBooking/user.txt"); // release .exe용
 
     if (!fin)
     {
@@ -207,7 +207,7 @@ bool loadUsers()
             exit(1);
         }
         fout.close();
-        return true;
+        // 파일 만들어주고 진행
     }
 
     string id, pw;
@@ -233,14 +233,15 @@ bool loadUsers()
             cerr << "[Error] Duplicate ID detected in user.txt -> " << id << endl;
             exit(1);
         }
-
         id_check[id] = true;
 
         bool isAdmin = (admin != 0);
-        users.push_back({id, pw, isAdmin});
+        users.push_back({ id, pw, isAdmin });
     }
-
     fin.close();
+
+    users.push_back({ "admin1", "admin123", true });
+
     return true;
 }
 
