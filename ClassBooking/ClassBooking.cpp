@@ -397,20 +397,23 @@ int printIdxErrorMessage(std::string callLocation)
 // 인덱스 입력 유효성 검사
 bool checkIdx(string callLocation, string& inputIdx) {
     string cleaned = removeWhitespace(inputIdx);
+
     // cout << "[DEBUG] cleaned: " << cleaned << endl;
+
     if (cleaned.length() == 1 && isdigit(cleaned[0])) {
-        int num = cleaned[0] - '0'; // 문자를 정수로 변환
-        if (num >= 1 && num <= 5) {
-            return false; // 정상 입력 (1~5 범위 내의 단일 숫자)
-        } else {
-            printIdxErrorMessage(callLocation); // 범위 벗어남 오류 메시지 출력
-            return true; // 비정상 입력
-        }
-    } else {
-        printIdxErrorMessage(callLocation); // 형식 오류 메시지 출력
-        return true; // 비정상 입력
+        return false;  // 정상 입력
     }
+
+    printIdxErrorMessage(callLocation);
+
+    // string errPhrase = ".";
+    // if (callLocation == "day") errPhrase = "of the day of the week.";
+    // else if (callLocation == "menu") errPhrase = "in the menu.";
+    // cout << ".!! Enter the index number " << errPhrase << endl;
+
+    return true;  // 비정상 입력
 }
+
 
 string InputClassroom()
 {
@@ -569,6 +572,13 @@ void reserveClassroom(const string& user_id) {
         while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
         getline(cin, day);
         if (checkIdx("day", day)) continue;
+
+        // 1~5사이의 인덱스 값만 받을 수 있도록 수정
+        int day_num = day[0] - '0';  // char -> int 변환
+        if (day_num < 1 || day_num > 5) {
+            cout << ".!! Please enter a number between 1 and 5.\n";
+            continue;
+        }
         break;
     }
 
