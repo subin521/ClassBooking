@@ -572,10 +572,9 @@ void reserveClassroom(const string& user_id) {
         getline(cin, day);
         if (checkIdx("day", day)) continue;
 
-        // 1~5사이의 인덱스 값만 받을 수 있도록 수정
-        int day_num = day[0] - '0';  // char -> int 변환
-        if (day_num < 1 || day_num > 5) {
-            cout << ".!! Please enter a number between 1 and 5.\n";
+        int dayInt = stoi(day);
+        if (dayInt < 1 || dayInt > 5) {
+            cout << ".!! Enter the index number of the day of the week.\n";
             continue;
         }
         break;
@@ -1036,7 +1035,7 @@ void showAndEditClassroom(const string &admin_id)
                         int dayInt = stoi(day);
                         if (dayInt < 1 || dayInt > 5)
                         {
-                            cout << ".!! Invalid weekday input\n";
+                            cout << ".!! Enter the index number of the day of the week.\n";
                             continue;
                         }
                         break; // (★ 입력 정상 받으면 탈출해야 함)
@@ -1158,7 +1157,7 @@ void showAndEditClassroom(const string &admin_id)
                         int dayInt = stoi(day);
                         if (dayInt < 1 || dayInt > 5)
                         {
-                            cout << ".!! Invalid weekday input\n";
+                            cout << ".!! Enter the index number of the day of the week.\n";
                             continue;
                         }
                         break; // (★ 입력 정상 받으면 탈출해야 함)
