@@ -612,7 +612,7 @@ void reserveClassroom(const string& user_id) {
 
         if (!is_admin && eh - sh >3)
         {
-            cout << ".!! General users can only reserve exactly 1 hour.\n";
+            cout << ".!! You exceed the maximum reservation time.\n";
             continue;
         }
 
