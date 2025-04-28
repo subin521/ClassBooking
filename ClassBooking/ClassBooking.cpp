@@ -573,10 +573,11 @@ bool logout()
     return logout();
 }
 
-void reserveClassroom(const string &user_id)
+void reserveClassroom(string &user_id)
 {
     string day, start, end;
     string room = InputClassroom();
+    bool is_admin = false;
 
     // --- 요일 입력 유효성 검사 ---
     while (true)
@@ -599,7 +600,7 @@ void reserveClassroom(const string &user_id)
     }
 
     while (true) {
-        bool is_admin = false;
+        is_admin = false;
     
         // --- 사용자 유형 확인 (admin 여부) ---
         for (const auto& u : users) {
