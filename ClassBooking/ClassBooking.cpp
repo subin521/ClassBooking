@@ -576,28 +576,7 @@ bool logout()
 void reserveClassroom(string &user_id)
 {
     string day, start, end;
-    string room = InputClassroom();
     bool is_admin = false;
-
-    // --- 요일 입력 유효성 검사 ---
-    while (true)
-    {
-        cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
-        cin.clear();
-        while (cin.peek() == '\n')
-            cin.ignore(); // 개행만 남은 버퍼 날리기
-        getline(cin, day);
-        if (checkIdx("day", day))
-            continue;
-
-        int dayInt = stoi(day);
-        if (dayInt < 1 || dayInt > 5)
-        {
-            cout << ".!! Enter the index number of the day of the week.\n";
-            continue;
-        }
-        break;
-    }
 
     while (true) {
         is_admin = false;
@@ -617,6 +596,28 @@ void reserveClassroom(string &user_id)
         // 관리자이면 경고하고 다시 입력받음
         std::cout << "!! Admin users are not allowed to perform this operation.\n";
         user_id = InputUser();
+    }
+
+    string room = InputClassroom();
+   
+    // --- 요일 입력 유효성 검사 ---
+    while (true)
+    {
+        cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+        cin.clear();
+        while (cin.peek() == '\n')
+            cin.ignore(); // 개행만 남은 버퍼 날리기
+        getline(cin, day);
+        if (checkIdx("day", day))
+            continue;
+
+        int dayInt = stoi(day);
+        if (dayInt < 1 || dayInt > 5)
+        {
+            cout << ".!! Enter the index number of the day of the week.\n";
+            continue;
+        }
+        break;
     }
 
     // --- 시간 입력 유효성 검사 ---
