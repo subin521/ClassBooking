@@ -617,7 +617,7 @@ void reserveClassroom(const string &user_id)
         cout << "end time (HH:00): ";
         cin >> end;
 
-        regex pattern("^([01]?[0-9]|2[0-3]):00$");
+        regex pattern("^(0[0-9]|1[0-9]|2[0-3]):00$");
         if (!regex_match(start, pattern) || !regex_match(end, pattern))
         {
             cout << ".!! Incorrect form: an example of correct input is '14:00'.\n";
