@@ -632,7 +632,7 @@ void reserveClassroom(string &user_id)
         cout << "end time (HH:00): ";
         cin >> end;
 
-        regex pattern("^([01]?[0-9]|2[0-3]):00$");
+        regex pattern("^(0[0-9]|1[0-9]|2[0-3]):00$");
         if (!regex_match(start, pattern) || !regex_match(end, pattern))
         {
             cout << ".!! Incorrect form: an example of correct input is '14:00'.\n";
@@ -1033,7 +1033,11 @@ void showListAndEditReservation()
                 cout << "ID: ";
                 getline(cin, userId);
                 // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
+<<<<<<< HEAD
                 if (userId == "admin01")
+=======
+                if (userId.find("admin") != string::npos)
+>>>>>>> 468ffdd15c118451d31e5d4a14eeb55a66d43d73
                 {
                     cout << ".!! Admin ID cannot cancel reservations." << endl;
                     continue; // admin01이면 다시 입력받기
