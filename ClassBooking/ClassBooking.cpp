@@ -1033,11 +1033,8 @@ void showListAndEditReservation()
                 cout << "ID: ";
                 getline(cin, userId);
                 // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
-<<<<<<< HEAD
-                if (userId == "admin01")
-=======
+
                 if (userId.find("admin") != string::npos)
->>>>>>> 468ffdd15c118451d31e5d4a14eeb55a66d43d73
                 {
                     cout << ".!! Admin ID cannot cancel reservations." << endl;
                     continue; // admin01이면 다시 입력받기
@@ -1768,10 +1765,10 @@ int main()
                 user = login();
             if (user->is_admin)
             {
-                cout << "-- Main for manager --\n";
                 // 관리자 기능 - 조수빈
                 while (true)
                 {
+                    cout << "-- Main for manager --\n";
                     cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
                     string choice;
                     cin.clear();
@@ -1793,8 +1790,7 @@ int main()
                         showAndEditClassroom(user->id); // 강의실 상태 출력 및 수정 함수 호출
                     else if (idx_managerP == 3)
                     {
-                        logout();
-                        break;
+                        if(logout()) break;
                     }
                     // else{
                     //     cout << ".!! Enter the index number in the mune.\n";
