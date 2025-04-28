@@ -1029,11 +1029,11 @@ void showListAndEditReservation()
                 cout << "ID: ";
                 getline(cin, userId);
                 // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
-            if (userId == "admin01")
-            {
-                cout << ".!! Admin ID cannot cancel reservations." << endl;
-                continue; // admin01이면 다시 입력받기
-            }
+                if (userId.find("admin") != string::npos)
+                {
+                    cout << ".!! Admin ID cannot cancel reservations." << endl;
+                    continue; // admin01이면 다시 입력받기
+                }
                 if (!isExistUser(userId))
                 {
                     cout << "ID doesn't exist." << endl;
