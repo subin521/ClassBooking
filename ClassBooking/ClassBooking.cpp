@@ -677,7 +677,7 @@ void reserveClassroom(const string &user_id)
     // --- 예약 충돌 확인 ---
     for (const auto &r : reservations)
     {
-        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
+        if (r.user_id == user_id && r.room == room && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
         {
             cout << ".!! Already reserved time\n";
             return;
