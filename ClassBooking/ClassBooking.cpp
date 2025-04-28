@@ -80,14 +80,15 @@ bool isValidClassroomTime(const std::string &time)
 bool loadClassrooms()
 {
     ifstream fin("classroom.txt");
-    //ifstream fin("../../ClassBooking/ClassBooking/classroom.txt"); // release .exe용
+    // ifstream fin("../../ClassBooking/ClassBooking/classroom.txt"); // release .exe용
 
     // 파일이 없는 경우
     if (!fin)
     {
         cerr << "[Warning] classroom.txt file not found. Creating default classrooms...\n";
         ofstream fout("classroom.txt");
-        if (!fout) {
+        if (!fout)
+        {
             cerr << "[Error] Failed to create classroom.txt.\n";
             exit(1);
         }
@@ -101,7 +102,8 @@ bool loadClassrooms()
              << "602 1 09:00 18:00\n";
         fout.close();
         fin.open("classroom.txt");
-        if (!fin) {
+        if (!fin)
+        {
             cerr << "[Error] Failed to open classroom.txt after creation.\n";
             exit(1);
         }
@@ -114,7 +116,8 @@ bool loadClassrooms()
         fin.close();
         cerr << "[Warning] classroom.txt is empty. Inserting default classrooms...\n";
         ofstream fout("classroom.txt");
-        if (!fout) {
+        if (!fout)
+        {
             cerr << "[Error] Failed to recreate classroom.txt.\n";
             exit(1);
         }
@@ -128,7 +131,8 @@ bool loadClassrooms()
              << "602 1 09:00 18:00\n";
         fout.close();
         fin.open("classroom.txt");
-        if (!fin) {
+        if (!fin)
+        {
             cerr << "[Error] Failed to open classroom.txt after recreating.\n";
             exit(1);
         }
@@ -182,7 +186,7 @@ bool loadClassrooms()
             exit(1);
         }
 
-        classrooms.push_back({ room, avail != 0, start, end });
+        classrooms.push_back({room, avail != 0, start, end});
     }
 
     fin.close();
@@ -197,13 +201,14 @@ bool loadUsers()
 {
     ifstream fin("user.txt"); // .cpp용
 
-    //ifstream fin("../../Classbooking/ClassBooking/user.txt"); // release .exe용
+    // ifstream fin("../../Classbooking/ClassBooking/user.txt"); // release .exe용
 
     if (!fin)
     {
         cerr << "[Warning] user.txt file not found. Creating empty user.txt...\n";
         ofstream fout("user.txt");
-        if (!fout) {
+        if (!fout)
+        {
             cerr << "[Error] Failed to create user.txt\n";
             exit(1);
         }
@@ -237,11 +242,11 @@ bool loadUsers()
         id_check[id] = true;
 
         bool isAdmin = (admin != 0);
-        users.push_back({ id, pw, isAdmin });
+        users.push_back({id, pw, isAdmin});
     }
     fin.close();
 
-    users.push_back({ "admin1", "admin123", true });
+    users.push_back({"admin1", "admin123", true});
 
     return true;
 }
@@ -254,13 +259,14 @@ bool isValidClassroomTime(const string &time);
 bool loadReservations()
 {
     ifstream fin("reservation.txt"); // .cpp용
-    //ifstream fin("../../Classbooking/ClassBooking/reservation.txt"); // release .exe용
+    // ifstream fin("../../Classbooking/ClassBooking/reservation.txt"); // release .exe용
 
     if (!fin)
     {
         cerr << "[Warning] reservation.txt file not found. Creating empty reservation.txt...\n";
         ofstream fout("reservation.txt");
-        if (!fout) {
+        if (!fout)
+        {
             cerr << "[Error] Failed to create reservation.txt.\n";
             exit(1);
         }
@@ -313,7 +319,7 @@ bool loadReservations()
             exit(1);
         }
 
-        reservations.push_back({ id, room, day, start, end });
+        reservations.push_back({id, room, day, start, end});
         lineCount_r++;
     }
 
@@ -394,13 +400,15 @@ int printIdxErrorMessage(std::string callLocation)
 }
 
 // 인덱스 입력 유효성 검사
-bool checkIdx(string callLocation, string& inputIdx) {
+bool checkIdx(string callLocation, string &inputIdx)
+{
     string cleaned = removeWhitespace(inputIdx);
 
     // cout << "[DEBUG] cleaned: " << cleaned << endl;
 
-    if (cleaned.length() == 1 && isdigit(cleaned[0])) {
-        return false;  // 정상 입력
+    if (cleaned.length() == 1 && isdigit(cleaned[0]))
+    {
+        return false; // 정상 입력
     }
 
     printIdxErrorMessage(callLocation);
@@ -410,27 +418,32 @@ bool checkIdx(string callLocation, string& inputIdx) {
     // else if (callLocation == "menu") errPhrase = "in the menu.";
     // cout << ".!! Enter the index number " << errPhrase << endl;
 
-    return true;  // 비정상 입력
+    return true; // 비정상 입력
 }
 
-
-string trim(const string& str);
-string InputClassroom() {
+string trim(const string &str);
+string InputClassroom()
+{
     string input;
 
-    while (true) {
+    while (true)
+    {
         cout << "classroom number: ";
-        
+
         cin.clear();
-        while (cin.peek() == '\n') cin.ignore();
+        while (cin.peek() == '\n')
+            cin.ignore();
 
         getline(cin, input);
 
         input = trim(input);
 
-        if (!validateRoomNumber(input) || !isExistRoomNumber(input)) {
+        if (!validateRoomNumber(input) || !isExistRoomNumber(input))
+        {
             cout << ".!! The classroom you entered doesn't exist. Please try again.\n";
-        } else {
+        }
+        else
+        {
             return input;
         }
     }
@@ -560,20 +573,25 @@ bool logout()
     return logout();
 }
 
-void reserveClassroom(const string& user_id) {
+void reserveClassroom(const string &user_id)
+{
     string day, start, end;
     string room = InputClassroom();
 
     // --- 요일 입력 유효성 검사 ---
-    while (true) {
+    while (true)
+    {
         cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
         cin.clear();
-        while (cin.peek() == '\n') cin.ignore();  // 개행만 남은 버퍼 날리기
+        while (cin.peek() == '\n')
+            cin.ignore(); // 개행만 남은 버퍼 날리기
         getline(cin, day);
-        if (checkIdx("day", day)) continue;
+        if (checkIdx("day", day))
+            continue;
 
         int dayInt = stoi(day);
-        if (dayInt < 1 || dayInt > 5) {
+        if (dayInt < 1 || dayInt > 5)
+        {
             cout << ".!! Enter the index number of the day of the week.\n";
             continue;
         }
@@ -582,22 +600,26 @@ void reserveClassroom(const string& user_id) {
 
     // --- 사용자 유형 확인 (admin 여부) ---
     bool is_admin = false;
-    for (const auto& u : users) {
-        if (u.id == user_id) {
+    for (const auto &u : users)
+    {
+        if (u.id == user_id)
+        {
             is_admin = u.is_admin;
             break;
         }
     }
 
     // --- 시간 입력 유효성 검사 ---
-    while (true) {
+    while (true)
+    {
         cout << "start time (HH:00): ";
         cin >> start;
         cout << "end time (HH:00): ";
         cin >> end;
 
         regex pattern("^([01]?[0-9]|2[0-3]):00$");
-        if (!regex_match(start, pattern) || !regex_match(end, pattern)) {
+        if (!regex_match(start, pattern) || !regex_match(end, pattern))
+        {
             cout << ".!! Incorrect form: an example of correct input is '14:00'.\n";
             continue;
         }
@@ -605,20 +627,24 @@ void reserveClassroom(const string& user_id) {
         int sh = stoi(start.substr(0, 2));
         int eh = stoi(end.substr(0, 2));
 
-        if (sh < 9 || sh > 17) {
+        if (sh < 9 || sh > 17)
+        {
             cout << ".!! Incorrect form: start must be between 09:00 and 17:00.\n";
             continue;
         }
-        if (eh < 10 || eh > 18) {
+        if (eh < 10 || eh > 18)
+        {
             cout << ".!! Incorrect form: end must be between 10:00 and 18:00.\n";
             continue;
         }
-        if (sh >= eh) {
+        if (sh >= eh)
+        {
             cout << ".!! Start time must be earlier than end time.\n";
             continue;
         }
 
-        if (!is_admin && eh - sh != 1) {
+        if (!is_admin && eh - sh != 1)
+        {
             cout << ".!! General users can only reserve exactly 1 hour.\n";
             continue;
         }
@@ -628,35 +654,56 @@ void reserveClassroom(const string& user_id) {
 
     // --- 하루 총합 3시간 초과 여부 검사 ---
     int totalReservedMinutes = 0;
-    for (const auto& r : reservations) {
-        if (r.user_id == user_id) {
-            int startHour = stoi(r.start_time.substr(0,2));
-            int endHour = stoi(r.end_time.substr(0,2));
+    for (const auto &r : reservations)
+    {
+        if (r.user_id == user_id)
+        {
+            int startHour = stoi(r.start_time.substr(0, 2));
+            int endHour = stoi(r.end_time.substr(0, 2));
             totalReservedMinutes += (endHour - startHour);
         }
     }
 
-    int newStartHour = stoi(start.substr(0,2));
-    int newEndHour = stoi(end.substr(0,2));
+    int newStartHour = stoi(start.substr(0, 2));
+    int newEndHour = stoi(end.substr(0, 2));
     int newDuration = newEndHour - newStartHour;
-    //cout << newDuration << ", " << totalReservedMinutes << endl;
-    if (!is_admin && (totalReservedMinutes + newDuration > 3)) {
+    // cout << newDuration << ", " << totalReservedMinutes << endl;
+    if (!is_admin && (totalReservedMinutes + newDuration > 3))
+    {
         cout << ".!! You exceeded the maximum reservation time.\n";
         return;
     }
 
     // --- 예약 충돌 확인 ---
-    for (const auto& r : reservations) {
-        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
+    for (const auto &r : reservations)
+    {
+        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
+        {
             cout << ".!! Already reserved time\n";
             return;
         }
     }
 
+    // --- 관리자(admin)가 설정한 금지 예약과 겹치는지 검사 ---
+    for (const auto &r : reservations)
+    {
+        if (r.room == room && r.day == day)
+        {
+            // 관리자(admin ID)가 등록한 예약 && 시간 겹침
+            if (r.user_id.find("admin") == 0 && isTimeOverlap(r.start_time, r.end_time, start, end))
+            {
+                cout << ".!! This time is not available (admin banned time).\n";
+                return;
+            }
+        }
+    }
+
     // --- 강의실 예약 가능 시간 확인 ---
-    for (const auto& c : classrooms) {
-        if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
-            reservations.push_back({ user_id, room, day, start, end });
+    for (const auto &c : classrooms)
+    {
+        if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end)
+        {
+            reservations.push_back({user_id, room, day, start, end});
             ofstream fout("reservation.txt", ios::app);
             fout << user_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
             fout.close();
@@ -1666,10 +1713,11 @@ int main()
                     else if (idx_userP == 3)
                     {
                         bool success = false;
-                        while (!success){
+                        while (!success)
+                        {
                             success = cancelReservation(user->id);
                         }
-                    } 
+                    }
                     else if (idx_userP == 4)
                     {
                         if (logout())
