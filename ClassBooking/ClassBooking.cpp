@@ -598,15 +598,24 @@ void reserveClassroom(const string &user_id)
         break;
     }
 
-    // --- 사용자 유형 확인 (admin 여부) ---
-    bool is_admin = false;
-    for (const auto &u : users)
-    {
-        if (u.id == user_id)
-        {
-            is_admin = u.is_admin;
-            break;
+    while (true) {
+        bool is_admin = false;
+    
+        // --- 사용자 유형 확인 (admin 여부) ---
+        for (const auto& u : users) {
+            if (u.id == user_id) {
+                is_admin = u.is_admin;
+                break;
+            }
         }
+    
+        if (!is_admin) {
+            break; // 관리자가 아니면 루프 탈출
+        }
+
+        // 관리자이면 경고하고 다시 입력받음
+        std::cout << "!! Admin users are not allowed to perform this operation.\n";
+        user_id = InputUser();
     }
 
     // --- 시간 입력 유효성 검사 ---
