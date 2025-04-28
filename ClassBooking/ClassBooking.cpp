@@ -573,11 +573,33 @@ bool logout()
     return logout();
 }
 
-void reserveClassroom(const string &user_id)
+void reserveClassroom(string &user_id)
 {
     string day, start, end;
-    string room = InputClassroom();
+    bool is_admin = false;
 
+    while (true) {
+        is_admin = false;
+    
+        // --- 사용자 유형 확인 (admin 여부) ---
+        for (const auto& u : users) {
+            if (u.id == user_id) {
+                is_admin = u.is_admin;
+                break;
+            }
+        }
+    
+        if (!is_admin) {
+            break; // 관리자가 아니면 루프 탈출
+        }
+
+        // 관리자이면 경고하고 다시 입력받음
+        std::cout << "!! Admin users are not allowed to perform this operation.\n";
+        user_id = InputUser();
+    }
+
+    string room = InputClassroom();
+   
     // --- 요일 입력 유효성 검사 ---
     while (true)
     {
@@ -596,17 +618,6 @@ void reserveClassroom(const string &user_id)
             continue;
         }
         break;
-    }
-
-    // --- 사용자 유형 확인 (admin 여부) ---
-    bool is_admin = false;
-    for (const auto &u : users)
-    {
-        if (u.id == user_id)
-        {
-            is_admin = u.is_admin;
-            break;
-        }
     }
 
     // --- 시간 입력 유효성 검사 ---
@@ -677,7 +688,7 @@ void reserveClassroom(const string &user_id)
     // --- 예약 충돌 확인 ---
     for (const auto &r : reservations)
     {
-        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
+        if (r.room == room && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
         {
             cout << ".!! Already reserved time\n";
             return;
@@ -831,6 +842,13 @@ void reservation_delete()
     {
         cout << "ID: ";
         getline(cin, user_id_to_cancel);
+
+        // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
+        if (user_id_to_cancel == "admin01")
+        {
+        cout << ".!! Admin ID cannot cancel reservations." << endl;
+        continue; // admin01이면 다시 입력받기
+        }
 
         // 공백, 형식, 존재 여부 확인
         if (has_leading_or_trailing_space(user_id_to_cancel) ||
@@ -1010,6 +1028,12 @@ void showListAndEditReservation()
             { // 정상 id입력까지 반복
                 cout << "ID: ";
                 getline(cin, userId);
+                // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
+            if (userId == "admin01")
+            {
+                cout << ".!! Admin ID cannot cancel reservations." << endl;
+                continue; // admin01이면 다시 입력받기
+            }
                 if (!isExistUser(userId))
                 {
                     cout << "ID doesn't exist." << endl;
