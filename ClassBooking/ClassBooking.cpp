@@ -842,7 +842,11 @@ void reservation_delete()
     {
         cout << "ID: ";
         getline(cin, user_id_to_cancel);
-
+        // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
+        if (user_id_to_cancel == "admin01")
+        {
+            cout << ".!! Admin ID cannot cancel reservations." << endl;
+        }
         // 공백, 형식, 존재 여부 확인
         if (has_leading_or_trailing_space(user_id_to_cancel) ||
             !is_valid_user_id(user_id_to_cancel) ||
