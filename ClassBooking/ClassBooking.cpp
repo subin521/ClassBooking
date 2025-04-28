@@ -578,18 +578,22 @@ void reserveClassroom(string &user_id)
     string day, start, end;
     bool is_admin = false;
 
-    while (true) {
+    while (true)
+    {
         is_admin = false;
-    
+
         // --- 사용자 유형 확인 (admin 여부) ---
-        for (const auto& u : users) {
-            if (u.id == user_id) {
+        for (const auto &u : users)
+        {
+            if (u.id == user_id)
+            {
                 is_admin = u.is_admin;
                 break;
             }
         }
-    
-        if (!is_admin) {
+
+        if (!is_admin)
+        {
             break; // 관리자가 아니면 루프 탈출
         }
 
@@ -599,7 +603,7 @@ void reserveClassroom(string &user_id)
     }
 
     string room = InputClassroom();
-   
+
     // --- 요일 입력 유효성 검사 ---
     while (true)
     {
@@ -846,8 +850,8 @@ void reservation_delete()
         // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
         if (user_id_to_cancel == "admin01")
         {
-        cout << ".!! Admin ID cannot cancel reservations." << endl;
-        continue; // admin01이면 다시 입력받기
+            cout << ".!! Admin ID cannot cancel reservations." << endl;
+            continue; // admin01이면 다시 입력받기
         }
 
         // 공백, 형식, 존재 여부 확인
@@ -1029,11 +1033,11 @@ void showListAndEditReservation()
                 cout << "ID: ";
                 getline(cin, userId);
                 // admin(관리자 id)는 자신의 예약 내역을 삭제할 수 없도록
-            if (userId == "admin01")
-            {
-                cout << ".!! Admin ID cannot cancel reservations." << endl;
-                continue; // admin01이면 다시 입력받기
-            }
+                if (userId == "admin01")
+                {
+                    cout << ".!! Admin ID cannot cancel reservations." << endl;
+                    continue; // admin01이면 다시 입력받기
+                }
                 if (!isExistUser(userId))
                 {
                     cout << "ID doesn't exist." << endl;
@@ -1196,7 +1200,7 @@ void showAndEditClassroom(const string &admin_id)
                         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
                              << r.end_time << "\t" << r.day << endl;
                     }
-
+                    fout.close();
                     cout << "Accept completed.\n";
                     break;
                 }
@@ -1272,15 +1276,103 @@ void showAndEditClassroom(const string &admin_id)
                         // ★ 여기까지 추가 ★
                         break;
                     }
-                    reservations.push_back({admin_id, room, day, start, end});
-                    ofstream fout("reservation.txt");
+                    // 추가 전에 중복 체크
+                    bool duplicate = false;
                     for (const auto &r : reservations)
                     {
-                        fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
-                             << r.end_time << "\t" << r.day << endl;
+                        if (r.user_id == admin_id &&
+                            r.room == room &&
+                            r.day == day &&
+                            r.start_time == start &&
+                            r.end_time == end)
+                        {
+                            duplicate = true;
+                            break;
+                        }
                     }
-                    fout.close();
-                    cout << "Ban completed.\n";
+
+                    if (duplicate)
+                    {
+                        cout << ".!! This ban reservation already exists.\n"; // 경고 띄우기
+                    }
+                    else
+                    {
+                        reservations.push_back({admin_id, room, day, start, end});
+                        ofstream fout("reservation.txt");
+                        for (const auto &r : reservations)
+                        {
+                            fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
+                        }
+                        fout.close();
+                        cout << "Ban completed.\n";
+
+                        // ban reservation 이후에 바로 admin01 금지 예약 병합
+
+                        // 해당 admin ban만 따로 모으기
+                        vector<Reservation> adminBans;
+                        for (const auto &r : reservations)
+                        {
+                            if (r.user_id == admin_id)
+                            { // admin 예약만
+                                adminBans.push_back(r);
+                            }
+                        }
+
+                        // 시간 순으로 정렬
+                        sort(adminBans.begin(), adminBans.end(), [](const Reservation &a, const Reservation &b)
+                             {
+    if (a.room == b.room) {
+        if (a.day == b.day) {
+            return a.start_time < b.start_time;
+        }
+        return a.day < b.day;
+    }
+    return a.room < b.room; });
+
+                        // 병합
+                        vector<Reservation> mergedBans;
+                        for (const auto &res : adminBans)
+                        {
+                            if (mergedBans.empty() ||
+                                mergedBans.back().room != res.room ||
+                                mergedBans.back().day != res.day ||
+                                mergedBans.back().end_time < res.start_time)
+                            {
+                                mergedBans.push_back(res);
+                            }
+                            else
+                            {
+                                mergedBans.back().end_time = max(mergedBans.back().end_time, res.end_time);
+                            }
+                        }
+
+                        // 최종 업데이트
+                        vector<Reservation> newReservations;
+                        for (const auto &r : reservations)
+                        {
+                            if (r.user_id != admin_id)
+                            { // 일반 사용자 예약은 건드리지 않음
+                                newReservations.push_back(r);
+                            }
+                        }
+                        for (const auto &r : mergedBans)
+                        {
+                            newReservations.push_back(r);
+                        }
+                        reservations = newReservations;
+
+                        // reservation.txt 다시 저장
+                        fout.close();                 // 먼저 닫아주고
+                        fout.open("reservation.txt"); // 다시 open만 해
+
+                        for (const auto &r : reservations)
+                        {
+                            fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
+                                 << r.end_time << "\t" << r.day << endl;
+                        }
+                        fout.close();
+                    }
+                    break;
                 }
             }
             if (!roomFound)
