@@ -1,3 +1,4 @@
 user1	Pass1!	0
 admin01 Admin@123 1
 user2   Pass1   0
+admin1  admin1! 1
